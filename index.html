@@ -11,9 +11,6 @@
       document.documentElement.dataset.theme = stored || (systemDark ? "dark" : "light");
     })();
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="aqua2.js" defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -25,7 +22,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
       color: var(--aqua-foreground);
       background:
         radial-gradient(ellipse 120% 80% at 50% -20%, rgba(120, 220, 255, 0.55) 0%, transparent 55%),
@@ -518,6 +515,22 @@
                   <button type="button" class="aqua-button-focused">Call to action</button>
                 </div>
                 <div class="control-row">
+                  <button type="button" class="aqua-toggle-button" aria-pressed="true">Live</button>
+                  <button type="button" class="graphite-toggle-button" aria-pressed="false">Muted</button>
+                </div>
+                <div class="control-row">
+                  <span class="aqua-chip">Ready</span>
+                  <span class="graphite-chip">Local only</span>
+                  <span class="aqua-chip">3 updates</span>
+                </div>
+                <div class="control-row">
+                  <div class="aqua-text-button-group" role="group" aria-label="View mode">
+                    <button type="button" class="aqua-text-button" aria-pressed="true">Overview</button>
+                    <button type="button" class="aqua-text-button" aria-pressed="false">Details</button>
+                    <button type="button" class="aqua-text-button" aria-pressed="false">History</button>
+                  </div>
+                </div>
+                <div class="control-row">
                   <button type="button" class="aqua-button-circular" aria-label="Play">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   </button>
@@ -562,6 +575,24 @@
                     </span>
                     <span class="aqua-checkbox-label">Floating bubbles</span>
                   </label>
+                  <div class="control-row">
+                    <label class="aqua-checkbox-chip">
+                      <input type="checkbox" checked>
+                      <span class="aqua-checkbox-control">
+                        <span class="aqua-checkbox-left"></span>
+                        <span class="aqua-checkbox-right"></span>
+                      </span>
+                      <span class="aqua-checkbox-label">Show labels</span>
+                    </label>
+                    <label class="graphite-checkbox-chip">
+                      <input type="checkbox">
+                      <span class="aqua-checkbox-control">
+                        <span class="aqua-checkbox-left"></span>
+                        <span class="aqua-checkbox-right"></span>
+                      </span>
+                      <span class="aqua-checkbox-label">Auto align</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -634,6 +665,16 @@
                     <div class="aqua-slider-thumb"></div>
                   </div>
                 </div>
+                <div class="slider-label" style="margin-top:16px">
+                  <span>Quality (fixed stops)</span>
+                  <output id="quality-out">3</output>
+                </div>
+                <div class="aqua-slider" id="quality-slider" data-min="1" data-max="5" data-steps="5" data-value="3">
+                  <div class="aqua-slider-track">
+                    <div class="aqua-slider-fill"></div>
+                    <div class="aqua-slider-thumb"></div>
+                  </div>
+                </div>
                 <div class="progress-group" style="margin-top:20px">
                   <div class="slider-label">
                     <span>Download progress</span>
@@ -652,6 +693,60 @@
                   <div class="aqua-progress graphite-progress" data-value="58">
                     <div class="aqua-progress-fill"></div>
                   </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Glass Containers</p>
+                <div class="control-stack">
+                  <div class="aqua-container">
+                    <p class="progress-caption">Aqua container</p>
+                    <div class="control-row">
+                      <button type="button" class="aqua-button">Apply</button>
+                      <button type="button" class="graphite-button">Cancel</button>
+                    </div>
+                    <div class="slider-label" style="margin-top:10px">
+                      <span>Intensity</span>
+                      <output id="container-intensity-out">60</output>
+                    </div>
+                    <div class="aqua-slider" id="container-intensity-slider" data-min="0" data-max="100" data-value="60">
+                      <div class="aqua-slider-track">
+                        <div class="aqua-slider-fill"></div>
+                        <div class="aqua-slider-thumb"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="graphite-container">
+                    <p class="progress-caption">Graphite container</p>
+                    <p style="margin:0">Glass container surfaces can host any Aqua2 control or plain text content.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Graph</p>
+                <div class="aqua-graph" aria-label="Sample waveform graph">
+                  <svg viewBox="0 0 320 132" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="aqua-graph-area" d="M0 66 C28 22 52 22 80 66 S132 110 160 66 S212 22 240 66 S292 110 320 66 L320 132 L0 132 Z"></path>
+                    <path class="aqua-graph-line" d="M0 66 C28 22 52 22 80 66 S132 110 160 66 S212 22 240 66 S292 110 320 66"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Code Block</p>
+                <div class="aqua-code-block">
+                  <pre><code><span class="aqua-code-line">const theme = document.documentElement.dataset.theme;</span>
+<span class="aqua-code-line">const slider = document.querySelector(".aqua-slider");</span>
+<span class="aqua-code-line"></span>
+<span class="aqua-code-line">function syncValue(target) {</span>
+<span class="aqua-code-line">  const value = Number(target.dataset.value || 0);</span>
+<span class="aqua-code-line">  target.style.setProperty("--current-value", value);</span>
+<span class="aqua-code-line">}</span>
+<span class="aqua-code-line"></span>
+<span class="aqua-code-line">slider?.addEventListener("pointerup", event =&gt; {</span>
+<span class="aqua-code-line">  syncValue(event.currentTarget);</span>
+<span class="aqua-code-line">});</span></code></pre>
                 </div>
               </div>
             </div>
@@ -833,6 +928,28 @@
       new MutationObserver(() => {
         if (contrastOut) contrastOut.textContent = contrastSlider.dataset.value;
       }).observe(contrastSlider, { attributes: true, attributeFilter: ["data-value"] });
+    }
+
+    const qualitySlider = document.getElementById("quality-slider");
+    const qualityOut = document.getElementById("quality-out");
+    if (qualitySlider) {
+      const syncQuality = () => {
+        if (qualityOut) qualityOut.textContent = qualitySlider.dataset.value;
+      };
+      qualitySlider.addEventListener("pointermove", syncQuality);
+      qualitySlider.addEventListener("pointerup", syncQuality);
+      syncQuality();
+    }
+
+    const containerIntensitySlider = document.getElementById("container-intensity-slider");
+    const containerIntensityOut = document.getElementById("container-intensity-out");
+    if (containerIntensitySlider) {
+      const syncContainerIntensity = () => {
+        if (containerIntensityOut) containerIntensityOut.textContent = containerIntensitySlider.dataset.value;
+      };
+      containerIntensitySlider.addEventListener("pointermove", syncContainerIntensity);
+      containerIntensitySlider.addEventListener("pointerup", syncContainerIntensity);
+      syncContainerIntensity();
     }
 
     const volumeSlider = document.getElementById("volume-slider");

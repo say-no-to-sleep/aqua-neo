@@ -94,6 +94,62 @@
   border-color: transparent;
 }
 
+.aqua-toggle-button, .graphite-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--aqua-background);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.08) 100%);
+  color: var(--aqua-foreground);
+  border: 1px solid var(--aqua-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  transition: background 0.20s ease, background-image 0.20s ease, border-color 0.20s ease, box-shadow 0.20s ease, transform 0.14s ease;
+}
+
+.aqua-toggle-button:hover, .graphite-toggle-button:hover {
+  background: color-mix(in srgb, var(--aqua-background) 80%, currentColor 20%);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.12) 100%);
+}
+
+.aqua-toggle-button:active, .graphite-toggle-button:active {
+  transform: scale(0.96);
+}
+
+.aqua-toggle-button[aria-pressed="true"] {
+  background: var(--aqua-color);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.18) 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.26);
+}
+
+.graphite-toggle-button[aria-pressed="true"] {
+  background: var(--graphite-color);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.14) 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.aqua-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aqua-color) 22%, transparent), 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.graphite-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--graphite-color) 24%, transparent), 0 1px 4px rgba(0,0,0,0.10);
+}
+
 [class$="-focused"] {
   border: 1px solid transparent;
   background-image: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.14) 100%);
@@ -105,12 +161,12 @@
 }
 
 [class$="-focused"]:not([class*="graphite"]) {
-  color: var(--aqua-foreground);
+  color: #ffffff;
   animation: aqua-pulse 1.2s ease-in-out infinite;
 }
 
 [class$="-focused"][class*="graphite"] {
-  color: var(--aqua-foreground);
+  color: #ffffff;
   background-image: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.10) 100%);
   animation: graphite-pulse 1.2s ease-in-out infinite;
 }
@@ -136,6 +192,221 @@
   height: 18px;
   overflow: visible;
   flex-shrink: 0;
+}
+
+.aqua-chip, .graphite-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
+  color: var(--aqua-foreground);
+  background: color-mix(in srgb, var(--aqua-color) 14%, var(--aqua-background));
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.00) 56%, rgba(255,255,255,0.10) 100%);
+  border: 1px solid color-mix(in srgb, var(--aqua-color) 28%, var(--aqua-border));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 3px rgba(0,0,0,0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.graphite-chip {
+  background: color-mix(in srgb, var(--graphite-color) 16%, var(--aqua-background));
+  border-color: color-mix(in srgb, var(--graphite-color) 32%, var(--aqua-border));
+}
+
+.aqua-container, .graphite-container {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 86%, rgba(255,255,255,0.34));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--aqua-color) 5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.32), 0 8px 20px rgba(0,0,0,0.08);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  color: var(--aqua-foreground);
+}
+
+.graphite-container {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 100%),
+    color-mix(in srgb, var(--graphite-color) 7%, transparent);
+}
+
+[data-theme="dark"] .aqua-container,
+[data-theme="dark"] .graphite-container {
+  border-color: color-mix(in srgb, var(--aqua-border) 82%, rgba(255,255,255,0.22));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--aqua-color) 6%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 26px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .graphite-container {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--graphite-color) 7%, transparent);
+}
+
+.aqua-code-block, .graphite-code-block {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 86%, rgba(255,255,255,0.34));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 100%),
+    color-mix(in srgb, var(--aqua-color) 5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 8px 20px rgba(0,0,0,0.08);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  color: var(--aqua-foreground);
+  font-family: "Monaco", "Menlo", "Consolas", "Lucida Console", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+.graphite-code-block {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.035) 100%),
+    color-mix(in srgb, var(--graphite-color) 6%, transparent);
+}
+
+.aqua-code-block pre, .graphite-code-block pre {
+  margin: 0;
+  min-width: max-content;
+  counter-reset: aqua-code-line;
+}
+
+.aqua-code-line {
+  display: block;
+  position: relative;
+  min-height: 1.55em;
+  padding: 0 16px 0 52px;
+  white-space: pre;
+  counter-increment: aqua-code-line;
+}
+
+.aqua-code-line:first-child {
+  padding-top: 12px;
+}
+
+.aqua-code-line:last-child {
+  padding-bottom: 12px;
+}
+
+.aqua-code-line::before {
+  content: counter(aqua-code-line);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 38px;
+  padding-right: 10px;
+  color: var(--aqua-foreground-muted);
+  text-align: right;
+  user-select: none;
+}
+
+.aqua-code-line:first-child::before {
+  top: 12px;
+}
+
+[data-theme="dark"] .aqua-code-block,
+[data-theme="dark"] .graphite-code-block {
+  border-color: color-mix(in srgb, var(--aqua-border) 82%, rgba(255,255,255,0.22));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--aqua-color) 6%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 10px 26px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .graphite-code-block {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--graphite-color) 7%, transparent);
+}
+
+.aqua-text-button-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.aqua-text-button, .graphite-text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--aqua-foreground-muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  cursor: default;
+  text-decoration: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.16s ease, opacity 0.16s ease, transform 0.12s ease;
+}
+
+.aqua-text-button[aria-pressed="true"], .graphite-text-button[aria-pressed="true"] {
+  color: #000000;
+}
+
+[data-theme="dark"] .aqua-text-button[aria-pressed="true"],
+[data-theme="dark"] .graphite-text-button[aria-pressed="true"] {
+  color: #ffffff;
+}
+
+.aqua-text-button:hover, .graphite-text-button:hover {
+  color: color-mix(in srgb, var(--aqua-foreground) 72%, var(--aqua-foreground-muted));
+}
+
+.aqua-text-button:active, .graphite-text-button:active {
+  color: var(--aqua-foreground);
+  transform: scale(0.96);
+}
+
+.aqua-text-button[aria-pressed="true"]:hover,
+.graphite-text-button[aria-pressed="true"]:hover,
+.aqua-text-button[aria-pressed="true"]:active,
+.graphite-text-button[aria-pressed="true"]:active {
+  color: #000000;
+}
+
+[data-theme="dark"] .aqua-text-button[aria-pressed="true"]:hover,
+[data-theme="dark"] .graphite-text-button[aria-pressed="true"]:hover,
+[data-theme="dark"] .aqua-text-button[aria-pressed="true"]:active,
+[data-theme="dark"] .graphite-text-button[aria-pressed="true"]:active {
+  color: #ffffff;
+}
+
+.aqua-text-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aqua-color) 22%, transparent);
+}
+
+.graphite-text-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--graphite-color) 24%, transparent);
 }
 
 .aqua-radio, .graphite-radio {
@@ -215,7 +486,7 @@
   line-height: 1;
 }
 
-.aqua-checkbox, .graphite-checkbox {
+.aqua-checkbox, .graphite-checkbox, .aqua-checkbox-chip, .graphite-checkbox-chip {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -224,7 +495,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.aqua-checkbox input[type="checkbox"], .graphite-checkbox input[type="checkbox"] {
+.aqua-checkbox input[type="checkbox"], .graphite-checkbox input[type="checkbox"], .aqua-checkbox-chip input[type="checkbox"], .graphite-checkbox-chip input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   width: 0;
@@ -271,37 +542,39 @@
   transform: rotate(-45deg) scaleX(0);
 }
 
-.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control {
+.aqua-checkbox-control.settling {
+  animation: checkbox-settle 0.3s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+}
+
+.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control, .aqua-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control {
   background: radial-gradient(ellipse 90% 60% at 50% 18%, rgba(255,255,255,0.36) 0%, transparent 66%), linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.16) 100%), var(--aqua-color);
   border-color: var(--aqua-color);
-  animation: checkbox-settle 0.35s cubic-bezier(0.34,1.55,0.64,1) forwards;
 }
 
 
-.graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control {
+.graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control, .graphite-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control {
   background: radial-gradient(ellipse 90% 60% at 50% 18%, rgba(255,255,255,0.28) 0%, transparent 66%), linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.14) 100%), var(--graphite-color);
   border-color: var(--graphite-color);
-  animation: checkbox-settle 0.35s cubic-bezier(0.34,1.55,0.64,1) forwards;
 }
 
-.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left {
+.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left, .aqua-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-left {
   background: var(--aqua-foreground);
   transform: rotate(-135deg) scaleX(1);
   transition: transform 0.14s ease 0s;
 }
 
-.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right {
+.aqua-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right, .aqua-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox-chip input[type="checkbox"]:checked + .aqua-checkbox-control .aqua-checkbox-right {
   background: var(--aqua-foreground);
   transform: rotate(-45deg) scaleX(1);
   transition: transform 0.18s ease 0.08s;
 }
 
-.aqua-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left {
+.aqua-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left, .aqua-checkbox-chip input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left, .graphite-checkbox-chip input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-left {
   transform: rotate(-135deg) scaleX(0);
   transition: transform 0.10s ease;
 }
 
-.aqua-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right {
+.aqua-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right, .aqua-checkbox-chip input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right, .graphite-checkbox-chip input[type="checkbox"]:not(:checked) + .aqua-checkbox-control .aqua-checkbox-right {
   transform: rotate(-45deg) scaleX(0);
   transition: transform 0.10s ease;
 }
@@ -310,7 +583,7 @@
   0% {
     transform: scale(1);
   } 40% {
-    transform: scale(1.18);
+    transform: scale(0.96);
   } 100% {
     transform: scale(1);
   }
@@ -321,6 +594,155 @@
   font-weight: 400;
   color: var(--aqua-foreground);
   line-height: 1;
+}
+
+.aqua-checkbox-chip, .graphite-checkbox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 85%, rgba(255,255,255,0.36));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.04) 100%),
+    color-mix(in srgb, var(--aqua-color) 5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 10px rgba(0,0,0,0.08);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.graphite-checkbox-chip {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.035) 100%),
+    color-mix(in srgb, var(--graphite-color) 6%, transparent);
+}
+
+.aqua-checkbox-chip:has(input[type="checkbox"]:checked) {
+  border-color: color-mix(in srgb, var(--aqua-color) 44%, var(--aqua-border));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.06) 100%),
+    color-mix(in srgb, var(--aqua-color) 13%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.34), 0 3px 12px color-mix(in srgb, var(--aqua-color) 22%, transparent);
+}
+
+.graphite-checkbox-chip:has(input[type="checkbox"]:checked) {
+  border-color: color-mix(in srgb, var(--graphite-color) 50%, var(--aqua-border));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--graphite-color) 15%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 3px 12px color-mix(in srgb, var(--graphite-color) 24%, transparent);
+}
+
+.aqua-checkbox-chip.pressing, .graphite-checkbox-chip.pressing {
+  transform: scale(0.975);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.14), 0 1px 6px rgba(0,0,0,0.10);
+}
+
+[data-theme="dark"] .aqua-checkbox-chip,
+[data-theme="dark"] .graphite-checkbox-chip {
+  border-color: color-mix(in srgb, var(--aqua-border) 80%, rgba(255,255,255,0.22));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--aqua-color) 6%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 3px 12px rgba(0,0,0,0.28);
+}
+
+[data-theme="dark"] .graphite-checkbox-chip {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--graphite-color) 7%, transparent);
+}
+
+.aqua-graph, .graphite-graph {
+  --aqua-graph-line: var(--aqua-color);
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 132px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 78%, rgba(255,255,255,0.40));
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      color-mix(in srgb, var(--aqua-foreground) 10%, transparent) 31px,
+      transparent 32px
+    ),
+    linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--aqua-color) 4%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.42), 0 8px 22px rgba(0,0,0,0.10);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.graphite-graph {
+  --aqua-graph-line: var(--graphite-color);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      color-mix(in srgb, var(--aqua-foreground) 10%, transparent) 31px,
+      transparent 32px
+    ),
+    linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 100%),
+    color-mix(in srgb, var(--graphite-color) 6%, transparent);
+}
+
+.aqua-graph svg, .graphite-graph svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.aqua-graph-area {
+  fill: color-mix(in srgb, var(--aqua-graph-line) 12%, transparent);
+}
+
+.aqua-graph-line {
+  fill: none;
+  stroke: var(--aqua-graph-line);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--aqua-graph-line) 58%, transparent));
+}
+
+[data-theme="dark"] .aqua-graph,
+[data-theme="dark"] .graphite-graph {
+  border-color: color-mix(in srgb, var(--aqua-border) 82%, rgba(255,255,255,0.22));
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      color-mix(in srgb, var(--aqua-foreground) 12%, transparent) 31px,
+      transparent 32px
+    ),
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--aqua-color) 6%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 26px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .graphite-graph {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      color-mix(in srgb, var(--aqua-foreground) 12%, transparent) 31px,
+      transparent 32px
+    ),
+    linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--graphite-color) 7%, transparent);
 }
 
 .aqua-input-wrap {
@@ -390,14 +812,21 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   overflow: hidden;
-  transition: border-color 0.18s ease, border-radius 0.28s cubic-bezier(0.34,1.1,0.64,1), background 0.18s ease, box-shadow 0.18s ease;
+  transform: translateZ(0);
+  transition:
+    border-color 0.18s ease,
+    border-radius 0.42s cubic-bezier(0.16,1,0.3,1),
+    background 0.24s ease,
+    box-shadow 0.34s ease,
+    opacity 0.18s ease,
+    transform 0.34s cubic-bezier(0.16,1,0.3,1);
 }
 
 .aqua-select-value-wrap {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 8px 10px 8px 16px;
+  padding: 8px 10px 8px 19px;
   min-width: 0;
 }
 
@@ -422,22 +851,33 @@
   justify-content: center;
   width: 32px;
   flex-shrink: 0;
-  background: var(--aqua-color);
-  background-image: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.12) 100%);
+  background: transparent;
+  background-image: none;
   border-radius: 0 999px 999px 0;
-  border-left: 1px solid rgba(0,0,0,0.10);
-  transition: background 0.18s ease, border-radius 0.28s cubic-bezier(0.34,1.1,0.64,1);
+  border-left: 0;
+  transition:
+    background 0.18s ease,
+    border-radius 0.42s cubic-bezier(0.16,1,0.3,1),
+    filter 0.24s ease;
 }
 
 .graphite-select .aqua-select-cap {
-  background: var(--graphite-color);
-  background-image: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.00) 55%, rgba(255,255,255,0.10) 100%);
+  background: transparent;
+  background-image: none;
 }
 
 .aqua-select-cap svg {
   width: 13px;
   height: 18px;
   flex-shrink: 0;
+}
+
+.aqua-select-cap svg path {
+  stroke: var(--aqua-color);
+}
+
+.graphite-select .aqua-select-cap svg path {
+  stroke: var(--graphite-color);
 }
 
 .aqua-select.open {
@@ -450,49 +890,158 @@
   left: 0;
   right: 0;
   min-width: 100%;
+  --aqua-select-panel-radius: 16px;
+  --aqua-select-panel-height: auto;
+  --aqua-select-morph-radius: 72px;
+  --aqua-select-collapsed-height: 38px;
+  --aqua-select-translate-y: 0px;
+  --aqua-select-inner-translate-y: 0px;
   background:
-    linear-gradient(to bottom, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.26) 100%),
-    color-mix(in srgb, var(--aqua-color) 9%, transparent);
-  border: 1.5px solid rgba(255,255,255,0.48);
-  border-radius: 14px;
-  backdrop-filter: blur(26px) saturate(170%);
-  -webkit-backdrop-filter: blur(26px) saturate(170%);
-  box-shadow: 0 10px 36px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
+    linear-gradient(to bottom, rgba(255,255,255,0.90) 0%, rgba(244,250,255,0.84) 100%),
+    color-mix(in srgb, var(--aqua-color) 10%, rgba(255,255,255,0.76));
+  border: 1.5px solid rgba(255,255,255,0.74);
+  border-radius: var(--aqua-select-morph-radius);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  box-shadow:
+    0 18px 52px rgba(0,0,0,0.24),
+    0 5px 16px rgba(0,0,0,0.12),
+    0 1px 0 rgba(255,255,255,0.78) inset;
+  box-sizing: border-box;
   overflow: hidden;
+  height: var(--aqua-select-collapsed-height);
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.96) translateY(-6px);
+  filter: saturate(0.92) brightness(1.03);
+  transform: scaleX(0.985) translateY(var(--aqua-select-translate-y));
   transform-origin: top center;
-  transition: opacity 0.22s ease, transform 0.26s cubic-bezier(0.34,1.2,0.64,1);
+  transition:
+    opacity 0.12s ease,
+    filter 0.20s ease;
+  will-change: height, border-radius, transform, filter;
   z-index: 2147483647;
+}
+
+.aqua-select-panel-inner {
+  transform: translateY(var(--aqua-select-inner-translate-y));
+  will-change: transform;
 }
 
 [data-theme="dark"] .aqua-select-panel {
   background:
-    linear-gradient(to bottom, rgba(38,48,64,0.58) 0%, rgba(18,24,34,0.46) 100%),
-    color-mix(in srgb, var(--aqua-color) 12%, transparent);
-  border-color: rgba(255,255,255,0.14);
+    linear-gradient(to bottom, rgba(45,55,72,0.94) 0%, rgba(18,26,38,0.90) 100%),
+    color-mix(in srgb, var(--aqua-color) 12%, rgba(7,14,24,0.86));
+  border-color: rgba(255,255,255,0.22);
+  box-shadow:
+    0 22px 54px rgba(0,0,0,0.44),
+    0 4px 16px rgba(0,0,0,0.24),
+    0 1px 0 rgba(255,255,255,0.12) inset;
+}
+
+.aqua-select-panel.aqua-select-panel-above {
+  transform-origin: bottom center;
 }
 
 .aqua-select.open .aqua-select-panel,
 .aqua-select-panel.aqua-select-panel-open {
   opacity: 1;
   pointer-events: auto;
-  transform: scale(1) translateY(0);
+  filter: saturate(1) brightness(1);
+  height: var(--aqua-select-panel-height, auto);
+  border-radius: var(--aqua-select-panel-radius);
+  transform: scaleX(1) translateY(0);
+}
+
+.aqua-select.open .aqua-select-panel .aqua-select-panel-inner,
+.aqua-select-panel.aqua-select-panel-open .aqua-select-panel-inner {
+  transform: translateY(0);
+}
+
+.aqua-select-panel.aqua-select-panel-open {
+  animation: aqua-select-panel-open 0.36s cubic-bezier(0.22,0.72,0.18,1) both;
+}
+
+.aqua-select-panel.aqua-select-panel-open .aqua-select-panel-inner {
+  animation: aqua-select-inner-open 0.36s cubic-bezier(0.22,0.72,0.18,1) both;
+}
+
+.aqua-select-panel.aqua-select-panel-closing {
+  opacity: 1;
+  pointer-events: none;
+  animation: aqua-select-panel-close 0.26s cubic-bezier(0.4,0,0.7,0.28) both;
+}
+
+.aqua-select-panel.aqua-select-panel-closing .aqua-select-panel-inner {
+  animation: aqua-select-inner-close 0.26s cubic-bezier(0.4,0,0.7,0.28) both;
+}
+
+@keyframes aqua-select-panel-open {
+  0% {
+    height: var(--aqua-select-collapsed-height);
+    border-radius: var(--aqua-select-morph-radius);
+    transform: scaleX(0.985) translateY(var(--aqua-select-translate-y));
+    filter: saturate(0.92) brightness(1.03);
+  }
+  100% {
+    height: var(--aqua-select-panel-height);
+    border-radius: var(--aqua-select-panel-radius);
+    transform: scaleX(1) translateY(0);
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes aqua-select-panel-close {
+  0% {
+    height: var(--aqua-select-panel-height);
+    border-radius: var(--aqua-select-panel-radius);
+    transform: scaleX(1) translateY(0);
+    filter: saturate(1) brightness(1);
+  }
+  100% {
+    height: var(--aqua-select-collapsed-height);
+    border-radius: var(--aqua-select-morph-radius);
+    transform: scaleX(0.985) translateY(var(--aqua-select-translate-y));
+    filter: saturate(0.92) brightness(1.03);
+  }
+}
+
+@keyframes aqua-select-inner-open {
+  0% { transform: translateY(var(--aqua-select-inner-translate-y)); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes aqua-select-inner-close {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(var(--aqua-select-inner-translate-y)); }
 }
 
 .aqua-select.open .aqua-select-trigger {
   border-color: color-mix(in srgb, var(--aqua-color) 45%, var(--aqua-border));
+  border-radius: 18px 18px 10px 10px;
+  opacity: 0;
+  transform: scale(0.985);
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--aqua-color) 16%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--aqua-color) 18%, transparent),
+    0 10px 24px color-mix(in srgb, var(--aqua-color) 20%, transparent),
     0 1px 4px rgba(0,0,0,0.10);
+}
+
+.aqua-select.closing .aqua-select-trigger {
+  opacity: 0;
+  transform: scale(0.985);
 }
 
 .graphite-select.open .aqua-select-trigger {
   border-color: color-mix(in srgb, var(--graphite-color) 45%, var(--aqua-border));
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--graphite-color) 16%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--graphite-color) 18%, transparent),
+    0 10px 24px color-mix(in srgb, var(--graphite-color) 20%, transparent),
     0 1px 4px rgba(0,0,0,0.10);
+}
+
+.aqua-select.open .aqua-select-cap {
+  border-radius: 0 18px 10px 0;
+  filter: brightness(1.08);
 }
 
 .aqua-select.open .aqua-select-cap svg {
@@ -504,13 +1053,29 @@
 }
 
 .aqua-select-option {
+  position: relative;
+  z-index: 1;
+  margin: 0 2px;
   padding: 9px 16px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 400;
   color: var(--aqua-foreground);
   cursor: default;
-  transition: background 0.12s ease;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition:
+    background 0.12s ease,
+    color 0.18s ease,
+    opacity 0.20s ease,
+    transform 0.34s cubic-bezier(0.16,1,0.3,1);
   white-space: nowrap;
+}
+
+.aqua-select-panel-open .aqua-select-option,
+.aqua-select-panel-closing .aqua-select-option {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .aqua-select-option:hover {
@@ -519,15 +1084,21 @@
 
 .aqua-select-option.chosen {
   color: var(--aqua-color);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .aqua-select-option:first-child {
   padding-top: 10px;
+  margin-top: 2px;
+  border-top-left-radius: 13px;
+  border-top-right-radius: 13px;
 }
 
 .aqua-select-option:last-child {
   padding-bottom: 10px;
+  margin-bottom: 2px;
+  border-bottom-left-radius: 13px;
+  border-bottom-right-radius: 13px;
 }
 
 .graphite-select .aqua-select-option:hover,
@@ -538,7 +1109,7 @@
 .graphite-select .aqua-select-option.chosen,
 .aqua-select-panel.graphite-select-panel .aqua-select-option.chosen {
   color: var(--graphite-color);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .aqua-slider {
@@ -558,6 +1129,24 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   overflow: visible;
+}
+
+.aqua-slider.has-stops .aqua-slider-track::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: 50%;
+  height: 14px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc((100% / var(--aqua-slider-stops)) - 1px),
+    color-mix(in srgb, var(--aqua-foreground) 24%, transparent) calc((100% / var(--aqua-slider-stops)) - 1px),
+    color-mix(in srgb, var(--aqua-foreground) 24%, transparent) calc(100% / var(--aqua-slider-stops))
+  );
 }
 
 .aqua-slider-fill {
@@ -734,7 +1323,8 @@
   position: absolute;
   inset: -5px;
   background-image: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, color-mix(in srgb, var(--aqua-color) 70%, black 30%) 20px, transparent 30px);
-  background-position: calc(-1 * var(--thumb-left, 0px) - 5px) 0;
+  background-size: 30px 100%;
+  background-position: calc(5px - var(--thumb-left, 0px)) 0;
   filter: blur(4px);
 }
 
@@ -744,7 +1334,8 @@
 
 .graphite-scrollbar .aqua-scrollbar-thumb::after {
   background-image: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, color-mix(in srgb, var(--graphite-color) 82%, black 18%) 20px, transparent 30px);
-  background-position: calc(-1 * var(--thumb-left, 0px) - 5px) 0;
+  background-size: 30px 100%;
+  background-position: calc(5px - var(--thumb-left, 0px)) 0;
 }
 
 .aqua-scrollbar-button {
@@ -967,6 +1558,25 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .aqua-select-trigger,
+  .aqua-select-cap,
+  .aqua-select-cap svg,
+  .aqua-select-panel,
+  .aqua-select-panel::before {
+    animation: none;
+    transition: none;
+  }
+
+  .aqua-select-panel,
+  .aqua-select-panel.aqua-select-panel-above {
+    clip-path: none;
+    transform: none;
+  }
+
+  .aqua-select-option {
+    transition: none;
+  }
+
   .aqua-tabview-panes.is-animating > .tab-pane.tab-pane-out,
   .aqua-tabview-panes.is-animating > .tab-pane.tab-pane-in {
     transition: none;
@@ -988,14 +1598,14 @@
 
 /* Firefox-specific glass fix */
 @supports (-moz-appearance: none) {
-  .aqua-select-panel {
-    background-color: rgba(255, 255, 255, 0.42) !important;
-    backdrop-filter: blur(26px) saturate(150%) !important;
+  .aqua-select-panel::before {
+    background-color: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(30px) saturate(150%) !important;
   }
 
-  [data-theme="dark"] .aqua-select-panel {
-    background-color: rgba(28, 34, 46, 0.62) !important;
-    backdrop-filter: blur(26px) saturate(130%) !important;
+  [data-theme="dark"] .aqua-select-panel::before {
+    background-color: rgba(34, 42, 56, 0.84) !important;
+    backdrop-filter: blur(30px) saturate(130%) !important;
   }
 }
   `;
@@ -1515,25 +2125,86 @@ document.querySelectorAll('.aqua-select').forEach(selector => {
   if (!trigger || !panel || !value || !options?.length)
     return;
 
+  let inner = panel.querySelector('.aqua-select-panel-inner');
+  if (!inner) {
+    inner = document.createElement('div');
+    inner.className = 'aqua-select-panel-inner';
+    const children = Array.from(panel.childNodes);
+    children.forEach(node => inner.appendChild(node));
+    panel.appendChild(inner);
+  }
+
   panel.classList.toggle('graphite-select-panel', selector.classList.contains('graphite-select'));
+  let closeTimer = null;
+
+  const finishClose = () => {
+    window.clearTimeout(closeTimer);
+    panel.classList.remove('aqua-select-panel-closing');
+    selector.classList.remove('closing');
+  };
+
+  const computeChosenOffset = (option, triggerHeight, panelHeight) => {
+    if (!option)
+      return 0;
+
+    const desired = option.offsetTop + option.offsetHeight / 2 - triggerHeight / 2;
+    return Math.max(0, Math.min(desired, Math.max(0, panelHeight - triggerHeight)));
+  };
+
+  const applyMorphVars = (translateY, innerTranslateY, triggerHeight, panelHeight) => {
+    panel.style.setProperty('--aqua-select-translate-y', translateY + 'px');
+    panel.style.setProperty('--aqua-select-inner-translate-y', innerTranslateY + 'px');
+    panel.style.setProperty('--aqua-select-collapsed-height', triggerHeight + 'px');
+    panel.style.setProperty('--aqua-select-panel-height', panelHeight + 'px');
+  };
 
   const positionPanel = () => {
     const rect = trigger.getBoundingClientRect();
     const viewportPadding = 8;
-    const gap = 8;
     const width = Math.min(rect.width, window.innerWidth - viewportPadding * 2);
     const left = Math.min(
       Math.max(rect.left, viewportPadding),
       window.innerWidth - width - viewportPadding
     );
-    const belowTop = rect.bottom + gap;
-    const panelHeight = panel.offsetHeight;
-    const shouldOpenAbove =
-      belowTop + panelHeight > window.innerHeight - viewportPadding &&
-      rect.top > panelHeight + gap;
-    const top = shouldOpenAbove
-      ? Math.max(viewportPadding, rect.top - panelHeight - gap)
-      : belowTop;
+
+    panel.style.setProperty('--aqua-select-panel-height', 'auto');
+    const panelHeight = Math.max(panel.scrollHeight, rect.height);
+
+    const chosenOption = panel.querySelector('.aqua-select-option.chosen');
+    const desiredOffset = computeChosenOffset(chosenOption, rect.height, panelHeight);
+
+    const morphTop = rect.top - desiredOffset;
+    const morphFitsBelow =
+      morphTop >= viewportPadding &&
+      morphTop + panelHeight <= window.innerHeight - viewportPadding;
+
+    let top;
+    let translateY;
+    let innerTranslateY;
+    let shouldOpenAbove = false;
+
+    if (desiredOffset > 0 && morphFitsBelow) {
+      top = morphTop;
+      translateY = desiredOffset;
+      innerTranslateY = -desiredOffset;
+    } else {
+      const wouldOverflowBelow = rect.top + panelHeight > window.innerHeight - viewportPadding;
+      const fitsAbove = rect.bottom - panelHeight >= viewportPadding;
+
+      if (wouldOverflowBelow && fitsAbove) {
+        shouldOpenAbove = true;
+        top = rect.bottom - panelHeight;
+        translateY = panelHeight - rect.height;
+        innerTranslateY = -(panelHeight - rect.height);
+      } else {
+        top = Math.max(
+          viewportPadding,
+          Math.min(rect.top, window.innerHeight - panelHeight - viewportPadding)
+        );
+        translateY = rect.top - top;
+        innerTranslateY = -(rect.top - top);
+      }
+    }
 
     panel.style.position = 'fixed';
     panel.style.left = left + 'px';
@@ -1544,12 +2215,34 @@ document.querySelectorAll('.aqua-select').forEach(selector => {
     panel.style.maxWidth = 'calc(100vw - ' + viewportPadding * 2 + 'px)';
     panel.style.zIndex = '2147483647';
     panel.style.transformOrigin = shouldOpenAbove ? 'bottom center' : 'top center';
+    applyMorphVars(translateY, innerTranslateY, rect.height, panelHeight);
+    panel.classList.toggle('aqua-select-panel-above', shouldOpenAbove);
   };
 
-  const close = () => {
+  const close = selectedOption => {
+    if (panel.classList.contains('aqua-select-panel-closing'))
+      return;
+    if (!selector.classList.contains('open') && !panel.classList.contains('aqua-select-panel-open'))
+      return;
+
+    window.clearTimeout(closeTimer);
+
+    if (selectedOption) {
+      const triggerRect = trigger.getBoundingClientRect();
+      const panelHeight = panel.offsetHeight || panel.scrollHeight;
+      const currentTop = parseFloat(panel.style.top);
+      const translateY = Number.isFinite(currentTop) ? triggerRect.top - currentTop : 0;
+      const newOffset = computeChosenOffset(selectedOption, triggerRect.height, panelHeight);
+      applyMorphVars(translateY, -newOffset, triggerRect.height, panelHeight);
+    }
+
     selector.classList.remove('open');
+    selector.classList.add('closing');
     panel.classList.remove('aqua-select-panel-open');
+    panel.classList.add('aqua-select-panel-closing');
     trigger.setAttribute('aria-expanded', 'false');
+
+    closeTimer = window.setTimeout(finishClose, 420);
   };
 
   const open = () => {
@@ -1557,12 +2250,23 @@ document.querySelectorAll('.aqua-select').forEach(selector => {
       if (instance.selector !== selector)
         instance.close();
     });
+    window.clearTimeout(closeTimer);
+    selector.classList.remove('closing');
+    panel.classList.remove('aqua-select-panel-closing');
     document.body.appendChild(panel);
     positionPanel();
+    panel.getBoundingClientRect();
     selector.classList.add('open');
     panel.classList.add('aqua-select-panel-open');
     trigger.setAttribute('aria-expanded', 'true');
   };
+
+  panel.addEventListener('animationend', e => {
+    if (e.target !== panel || e.animationName !== 'aqua-select-panel-close')
+      return;
+
+    finishClose();
+  });
 
   trigger.setAttribute('aria-haspopup', 'listbox');
   trigger.setAttribute('aria-expanded', 'false');
@@ -1575,11 +2279,15 @@ document.querySelectorAll('.aqua-select').forEach(selector => {
   options.forEach(option => {
     option.addEventListener('click', e => {
       e.stopPropagation();
-      aquaSelectInstances.forEach(instance => instance.close());
+      aquaSelectInstances.forEach(instance => {
+        if (instance.selector !== selector)
+          instance.close();
+      });
       options.forEach(choice => choice.classList.remove('chosen'));
       option.classList.add('chosen');
       value.textContent = option.textContent;
       value.classList.add('selected');
+      close(option);
     });
   });
 
@@ -1615,6 +2323,8 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
   const thumb = slider.querySelector('.aqua-slider-thumb');
   const min = parseFloat(slider.dataset.min ?? 0);
   const max = parseFloat(slider.dataset.max ?? 100);
+  const parsedSteps = parseInt(slider.dataset.steps ?? '0', 10);
+  const steps = Number.isFinite(parsedSteps) && parsedSteps >= 2 ? parsedSteps : 0;
   let value = parseFloat(slider.dataset.value ?? 50);
 
   function clamp(value) {
@@ -1625,8 +2335,17 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
     return (clamp(value) - min) / (max - min);
   }
 
+  function quantizeFraction(fraction) {
+    if (!steps)
+      return fraction;
+
+    const stops = steps - 1;
+    return Math.round(fraction * stops) / stops;
+  }
+
   function applyFraction(fraction, animate) {
-    const percentage = fraction * 100;
+    const snappedFraction = quantizeFraction(fraction);
+    const percentage = snappedFraction * 100;
 
     if (!animate) {
       fill.style.transition = 'none';
@@ -1638,7 +2357,7 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
 
     fill.style.width = `calc(${percentage}% + 1px)`;
     thumb.style.left = `${percentage}%`;
-    value = min + fraction * (max - min);
+    value = min + snappedFraction * (max - min);
     slider.dataset.value = Math.round(value);
   }
 
@@ -1648,6 +2367,10 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
   }
 
   applyFraction(normalize(value), false);
+  if (steps) {
+    slider.classList.add('has-stops');
+    slider.style.setProperty('--aqua-slider-stops', String(steps - 1));
+  }
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
       fill.style.transition = '';
@@ -1703,6 +2426,73 @@ function aquaProgressIndicator(progressIndicator) {
 }
 
 document.querySelectorAll('.aqua-progress').forEach(aquaProgressIndicator);
+
+document.querySelectorAll('.aqua-toggle-button, .graphite-toggle-button').forEach(button => {
+  if (!button.hasAttribute('aria-pressed'))
+    button.setAttribute('aria-pressed', 'false');
+
+  button.addEventListener('click', () => {
+    const isPressed = button.getAttribute('aria-pressed') === 'true';
+    button.setAttribute('aria-pressed', isPressed ? 'false' : 'true');
+  });
+});
+
+document.querySelectorAll('.aqua-text-button-group').forEach(group => {
+  const buttons = Array.from(group.querySelectorAll('.aqua-text-button, .graphite-text-button'));
+  if (!buttons.length)
+    return;
+
+  const selectButton = selectedButton => {
+    buttons.forEach(button => {
+      button.setAttribute('aria-pressed', button === selectedButton ? 'true' : 'false');
+    });
+  };
+
+  const initiallyPressed = buttons.find(button => button.getAttribute('aria-pressed') === 'true');
+  selectButton(initiallyPressed || buttons[0]);
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => selectButton(button));
+  });
+});
+
+document.querySelectorAll('.aqua-checkbox input[type="checkbox"], .graphite-checkbox input[type="checkbox"], .aqua-checkbox-chip input[type="checkbox"], .graphite-checkbox-chip input[type="checkbox"]').forEach(input => {
+  const control = input.nextElementSibling;
+  if (!control?.classList.contains('aqua-checkbox-control'))
+    return;
+  const chip = input.closest('.aqua-checkbox-chip, .graphite-checkbox-chip');
+
+  input.addEventListener('change', () => {
+    control.classList.remove('settling');
+    void control.offsetWidth;
+    control.classList.add('settling');
+  });
+
+  control.addEventListener('animationend', e => {
+    if (e.animationName === 'checkbox-settle')
+      control.classList.remove('settling');
+  });
+});
+
+document.querySelectorAll('.aqua-checkbox-chip, .graphite-checkbox-chip').forEach(chip => {
+  const release = () => {
+    chip.classList.remove('pressing');
+  };
+
+  chip.addEventListener('pointerdown', e => {
+    if (e.button !== 0)
+      return;
+
+    chip.classList.add('pressing');
+  });
+
+  chip.addEventListener('pointerup', release);
+  chip.addEventListener('pointercancel', release);
+  chip.addEventListener('pointerleave', e => {
+    if (e.buttons === 1)
+      release();
+  });
+});
 
 document.querySelectorAll('.aqua-scrollbar').forEach(scrollbar => {
   const track = scrollbar.querySelector('.aqua-scrollbar-track');
