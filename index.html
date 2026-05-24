@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aqua Neo — Component Showcase</title>
+  <script>
+    (function () {
+      const stored = localStorage.getItem("aqua-theme");
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = stored || (systemDark ? "dark" : "light");
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="aqua2.js" defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--aqua-foreground);
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(120, 220, 255, 0.55) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 50% at 90% 30%, rgba(100, 255, 180, 0.25) 0%, transparent 45%),
+        radial-gradient(ellipse 70% 60% at 10% 70%, rgba(80, 160, 255, 0.30) 0%, transparent 50%),
+        linear-gradient(165deg, #b8e4ff 0%, #7ec8f0 28%, #5ab0e8 52%, #8ed4c4 78%, #c5f0e8 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    [data-theme="dark"] body {
+      background:
+        radial-gradient(ellipse 100% 70% at 50% -10%, rgba(30, 100, 180, 0.45) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 85% 40%, rgba(20, 140, 100, 0.20) 0%, transparent 40%),
+        linear-gradient(165deg, #0a1628 0%, #0d2840 35%, #0f3050 60%, #0a2035 100%);
+    }
+
+    .bubbles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.05) 70%);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: inset 0 -8px 20px rgba(0,120,200,0.08), 0 8px 24px rgba(0,80,160,0.12);
+      animation: float 18s ease-in-out infinite;
+    }
+
+    .bubble:nth-child(1) { width: 90px; height: 90px; top: 12%; left: 8%; animation-delay: 0s; }
+    .bubble:nth-child(2) { width: 55px; height: 55px; top: 55%; left: 4%; animation-delay: -4s; }
+    .bubble:nth-child(3) { width: 120px; height: 120px; top: 20%; right: 6%; animation-delay: -8s; }
+    .bubble:nth-child(4) { width: 40px; height: 40px; top: 75%; right: 12%; animation-delay: -2s; }
+    .bubble:nth-child(5) { width: 70px; height: 70px; bottom: 15%; left: 45%; animation-delay: -12s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      33% { transform: translateY(-18px) translateX(8px); }
+      66% { transform: translateY(10px) translateX(-6px); }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 24px 80px;
+    }
+
+    /* —— Header —— */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(200,230,255,0.6) 50%, rgba(0,113,227,0.4) 100%);
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 4px 16px rgba(0,100,200,0.25), inset 0 2px 4px rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-icon svg { width: 28px; height: 28px; }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--aqua-foreground-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* —— Glass panels —— */
+    .glass {
+      background: rgba(255, 255, 255, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 20px;
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      box-shadow:
+        0 8px 32px rgba(0, 60, 120, 0.12),
+        0 1px 0 rgba(255, 255, 255, 0.7) inset;
+    }
+
+    [data-theme="dark"] .glass {
+      background: rgba(20, 30, 45, 0.65);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    }
+
+    .hero {
+      padding: 40px 36px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #0066cc 0%, #00a86b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    [data-theme="dark"] .hero h2 {
+      background: linear-gradient(135deg, #5eb3ff 0%, #5ee8a8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero .tagline {
+      margin: 0 auto 24px;
+      max-width: 520px;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--aqua-foreground-muted);
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* —— OS window chrome —— */
+    .window {
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .window-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--aqua-border);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 100%);
+    }
+
+    [data-theme="dark"] .window-titlebar {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 100%);
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 7px;
+    }
+
+    .traffic-lights span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .traffic-lights span:nth-child(1) { background: #ff5f57; }
+    .traffic-lights span:nth-child(2) { background: #febc2e; }
+    .traffic-lights span:nth-child(3) { background: #28c840; }
+
+    .window-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--aqua-foreground-muted);
+      text-align: center;
+      margin-right: 52px;
+    }
+
+    .window-body {
+      padding: 24px;
+    }
+
+    .tab-content {
+      padding: 20px 4px 8px;
+      min-height: 200px;
+    }
+
+    /* —— Section grid —— */
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--aqua-foreground-muted);
+      margin: 0 0 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    [data-theme="dark"] .card {
+      background: rgba(0,0,0,0.2);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+      margin-bottom: 14px;
+    }
+
+    .control-row:last-child { margin-bottom: 0; }
+
+    .control-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .aqua-input-wrap { width: 100%; max-width: 280px; }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .slider-label output {
+      font-variant-numeric: tabular-nums;
+      color: var(--aqua-color);
+      font-weight: 600;
+    }
+
+    .progress-group { margin-bottom: 16px; }
+    .progress-group:last-child { margin-bottom: 0; }
+
+    .progress-caption {
+      font-size: 12px;
+      color: var(--aqua-foreground-muted);
+      margin-bottom: 6px;
+    }
+
+  /* —— Media player —— */
+    .player {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .player-art {
+      width: 100px;
+      height: 100px;
+      border-radius: 14px;
+      flex-shrink: 0;
+      background:
+        linear-gradient(135deg, rgba(0,113,227,0.5) 0%, rgba(0,200,150,0.4) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='35' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='8' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E") center/60% no-repeat;
+      border: 1px solid rgba(255,255,255,0.5);
+      box-shadow: 0 6px 20px rgba(0,80,160,0.2);
+    }
+
+    .player-main { flex: 1; min-width: 220px; }
+
+    .player-track {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 2px;
+    }
+
+    .player-artist {
+      font-size: 13px;
+      color: var(--aqua-foreground-muted);
+      margin: 0 0 14px;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .player-time {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: var(--aqua-foreground-muted);
+      margin-top: 6px;
+    }
+
+    /* —— Gallery scroll area —— */
+    .gallery-strip {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 8px 4px 16px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gallery-strip::-webkit-scrollbar { height: 0; }
+
+    .gallery-item {
+      flex: 0 0 140px;
+      scroll-snap-align: start;
+      aspect-ratio: 4/3;
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(100,200,255,0.5), rgba(80,180,140,0.4));
+      border: 1px solid rgba(255,255,255,0.45);
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,60,120,0.15);
+    }
+
+    .gallery-item:nth-child(2) { background: linear-gradient(145deg, rgba(255,180,100,0.45), rgba(255,120,180,0.35)); }
+    .gallery-item:nth-child(3) { background: linear-gradient(145deg, rgba(180,140,255,0.45), rgba(100,180,255,0.4)); }
+    .gallery-item:nth-child(4) { background: linear-gradient(145deg, rgba(100,255,200,0.4), rgba(0,180,220,0.45)); }
+    .gallery-item:nth-child(5) { background: linear-gradient(145deg, rgba(255,220,120,0.45), rgba(255,160,80,0.4)); }
+
+    .scrollbar-demo { margin-top: 12px; }
+
+    .scrollbar-readout {
+      font-size: 12px;
+      color: var(--aqua-foreground-muted);
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* —— Component reference footer —— */
+    .reference {
+      padding: 28px 32px;
+      margin-top: 8px;
+    }
+
+    .reference h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .reference p {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--aqua-foreground-muted);
+    }
+
+    .reference code {
+      font-size: 0.8em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--aqua-background);
+    }
+
+    .site-footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--aqua-foreground-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bubbles" aria-hidden="true">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="page">
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4C10 4 6 9 6 14c0 6 4 10 10 14 6-4 10-8 10-14 0-5-4-10-10-10z" fill="url(#a)" opacity="0.9"/>
+            <ellipse cx="16" cy="14" rx="6" ry="5" fill="white" opacity="0.35"/>
+            <defs>
+              <linearGradient id="a" x1="6" y1="4" x2="26" y2="28">
+                <stop stop-color="#0071e3"/>
+                <stop offset="1" stop-color="#34d399"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1>Aqua Neo</h1>
+          <p>Frutiger Aero component gallery</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="graphite-button" id="btn-docs">Documentation</button>
+        <button type="button" class="aqua-button-focused" id="btn-launch">Launch Demo</button>
+      </div>
+    </header>
+
+    <section class="hero glass">
+      <h2>Glossy controls for the optimistic web</h2>
+      <p class="tagline">
+        Skeuomorphic glass, spring animations, and Vista-era clarity — powered by
+        <strong>aqua2.js</strong>. Drag sliders, scrub tabs, and feel the bubble-era polish.
+      </p>
+      <div class="hero-cta">
+        <button type="button" class="aqua-button" id="hero-explore">Explore components</button>
+        <button type="button" class="graphite-button-circular" title="Share" aria-label="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+          </svg>
+        </button>
+        <button type="button" class="aqua-button-square" id="hero-theme-toggle" title="Toggle theme" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <article class="window glass" id="main-window">
+      <div class="window-titlebar">
+        <div class="traffic-lights" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="window-title">Horizon Preferences — Aqua Neo Showcase</span>
+      </div>
+
+      <div class="aqua-tabview-wrap">
+        <div class="aqua-tabview" data-content-prefix="showcase" id="main-tabs">
+          <div class="aqua-tabview-indicator"></div>
+          <div class="aqua-tabview-tab active" data-tab="controls">Controls</div>
+          <div class="aqua-tabview-tab" data-tab="media">Media</div>
+          <div class="aqua-tabview-tab" data-tab="gallery">Gallery</div>
+          <div class="aqua-tabview-tab disabled" data-tab="cloud">Cloud Sync</div>
+        </div>
+      </div>
+
+      <div class="window-body">
+        <div class="tab-pane active" id="showcase-controls">
+          <div class="tab-content">
+            <div class="grid-2">
+              <div class="card">
+                <p class="section-title">Buttons</p>
+                <div class="control-row">
+                  <button type="button" class="aqua-button">Primary</button>
+                  <button type="button" class="graphite-button">Secondary</button>
+                  <button type="button" class="aqua-button-focused">Call to action</button>
+                </div>
+                <div class="control-row">
+                  <button type="button" class="aqua-button-circular" aria-label="Play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                  <button type="button" class="graphite-button-circular" aria-label="Pause">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                  </button>
+                  <button type="button" class="aqua-button-square" aria-label="Stop">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                  </button>
+                  <button type="button" class="graphite-button-circular-focused" aria-label="Record">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Selection</p>
+                <div class="control-stack">
+                  <label class="aqua-radio">
+                    <input type="radio" name="theme" value="aero" checked>
+                    <span class="aqua-radio-control"></span>
+                    <span class="aqua-radio-label">Frutiger Aero</span>
+                  </label>
+                  <label class="graphite-radio">
+                    <input type="radio" name="theme" value="graphite">
+                    <span class="aqua-radio-control"></span>
+                    <span class="aqua-radio-label">Graphite</span>
+                  </label>
+                  <label class="aqua-checkbox">
+                    <input type="checkbox" id="chk-glass" checked>
+                    <span class="aqua-checkbox-control">
+                      <span class="aqua-checkbox-left"></span>
+                      <span class="aqua-checkbox-right"></span>
+                    </span>
+                    <span class="aqua-checkbox-label">Enable glass effects</span>
+                  </label>
+                  <label class="graphite-checkbox">
+                    <input type="checkbox" id="chk-bubbles">
+                    <span class="aqua-checkbox-control">
+                      <span class="aqua-checkbox-left"></span>
+                      <span class="aqua-checkbox-right"></span>
+                    </span>
+                    <span class="aqua-checkbox-label">Floating bubbles</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Text &amp; Select</p>
+                <div class="control-stack">
+                  <div class="aqua-input-wrap">
+                    <input class="aqua-input" type="text" placeholder="Search the horizon…" id="search-input">
+                  </div>
+                  <div class="aqua-input-wrap">
+                    <input class="graphite-input" type="text" placeholder="Alternate accent…">
+                  </div>
+                  <div class="aqua-select" id="region-select">
+                    <div class="aqua-select-trigger">
+                      <div class="aqua-select-value-wrap">
+                        <span class="aqua-select-value selected">Pacific Northwest</span>
+                      </div>
+                      <div class="aqua-select-cap">
+                        <svg viewBox="0 0 13 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6.5 14L1 8.5M6.5 14L12 8.5M6.5 4V14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="aqua-select-panel" role="listbox">
+                      <div class="aqua-select-option chosen" role="option">Pacific Northwest</div>
+                      <div class="aqua-select-option">Mediterranean Coast</div>
+                      <div class="aqua-select-option">Alpine Vista</div>
+                      <div class="aqua-select-option">Tropical Reef</div>
+                    </div>
+                  </div>
+                  <div class="aqua-select graphite-select">
+                    <div class="aqua-select-trigger">
+                      <div class="aqua-select-value-wrap">
+                        <span class="aqua-select-value">Quality preset…</span>
+                      </div>
+                      <div class="aqua-select-cap">
+                        <svg viewBox="0 0 13 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6.5 14L1 8.5M6.5 14L12 8.5M6.5 4V14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="aqua-select-panel" role="listbox">
+                      <div class="aqua-select-option" role="option">Eco</div>
+                      <div class="aqua-select-option">Balanced</div>
+                      <div class="aqua-select-option">Ultra Gloss</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <p class="section-title">Sliders &amp; Progress</p>
+                <div class="slider-label">
+                  <span>Brightness</span>
+                  <output id="brightness-out">72</output>
+                </div>
+                <div class="aqua-slider" id="brightness-slider" data-min="0" data-max="100" data-value="72">
+                  <div class="aqua-slider-track">
+                    <div class="aqua-slider-fill"></div>
+                    <div class="aqua-slider-thumb"></div>
+                  </div>
+                </div>
+                <div class="slider-label" style="margin-top:16px">
+                  <span>Contrast (graphite)</span>
+                  <output id="contrast-out">40</output>
+                </div>
+                <div class="aqua-slider graphite-slider" id="contrast-slider" data-min="0" data-max="100" data-value="40">
+                  <div class="aqua-slider-track">
+                    <div class="aqua-slider-fill"></div>
+                    <div class="aqua-slider-thumb"></div>
+                  </div>
+                </div>
+                <div class="progress-group" style="margin-top:20px">
+                  <div class="slider-label">
+                    <span>Download progress</span>
+                    <output id="download-out">38</output>
+                  </div>
+                  <div class="aqua-progress" id="download-progress" data-value="38">
+                    <div class="aqua-progress-fill"></div>
+                  </div>
+                </div>
+                <div class="progress-group">
+                  <p class="progress-caption">Syncing (indeterminate)</p>
+                  <div class="aqua-progress-indeterminate" id="sync-indeterminate"></div>
+                </div>
+                <div class="progress-group">
+                  <p class="progress-caption">Cache (graphite)</p>
+                  <div class="aqua-progress graphite-progress" data-value="58">
+                    <div class="aqua-progress-fill"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="showcase-media">
+          <div class="tab-content">
+            <div class="player">
+              <div class="player-art" aria-hidden="true"></div>
+              <div class="player-main">
+                <p class="player-track">Crystal Currents</p>
+                <p class="player-artist">Neptune Vista Ensemble</p>
+                <div class="aqua-progress" id="playback-progress" data-value="34">
+                  <div class="aqua-progress-fill"></div>
+                </div>
+                <p class="player-time"><span id="time-current">1:24</span> / <span id="time-total">4:08</span></p>
+                <div class="slider-label" style="margin-top:14px">
+                  <span>Volume</span>
+                  <output id="volume-out">65</output>
+                </div>
+                <div class="aqua-slider" id="volume-slider" data-min="0" data-max="100" data-value="65">
+                  <div class="aqua-slider-track">
+                    <div class="aqua-slider-fill"></div>
+                    <div class="aqua-slider-thumb"></div>
+                  </div>
+                </div>
+                <div class="player-controls">
+                  <button type="button" class="graphite-button-circular" id="btn-prev" aria-label="Previous">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                  </button>
+                  <button type="button" class="aqua-button-circular-focused" id="btn-play" aria-label="Play">
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="play-icon"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                  <button type="button" class="graphite-button-circular" id="btn-next" aria-label="Next">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12H16zM6 6l8.5 6L6 18V6z"/></svg>
+                  </button>
+                  <button type="button" class="graphite-button" id="btn-shuffle">Shuffle</button>
+                </div>
+              </div>
+            </div>
+            <div class="progress-group" style="margin-top:24px">
+              <p class="progress-caption">Buffering</p>
+              <div class="aqua-progress-indeterminate graphite-progress"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="showcase-gallery">
+          <div class="tab-content">
+            <p class="section-title">Horizon wallpapers — use the scrollbar to browse</p>
+            <div class="gallery-strip" id="gallery-strip">
+              <div class="gallery-item">Skyline</div>
+              <div class="gallery-item">Meadow</div>
+              <div class="gallery-item">Sunset</div>
+              <div class="gallery-item">Reef</div>
+              <div class="gallery-item">Aurora</div>
+            </div>
+            <div class="scrollbar-demo">
+              <div class="aqua-scrollbar" id="gallery-scrollbar" data-value="0" data-thumb-size="25">
+                <button type="button" class="aqua-scrollbar-button aqua-scrollbar-previous" aria-label="Scroll left">
+                  <svg viewBox="0 0 8 7"><path d="M5.5 1L2 3.5 5.5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="aqua-scrollbar-track">
+                  <div class="aqua-scrollbar-thumb"></div>
+                </div>
+                <button type="button" class="aqua-scrollbar-button aqua-scrollbar-next" aria-label="Scroll right">
+                  <svg viewBox="0 0 8 7"><path d="M2.5 1L6 3.5 2.5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+              <p class="scrollbar-readout">Scroll position: <strong id="scroll-pos">0</strong>%</p>
+            </div>
+            <div class="scrollbar-demo" style="margin-top:20px">
+              <p class="section-title">Graphite variant</p>
+              <div class="aqua-scrollbar graphite-scrollbar" data-value="60" data-thumb-size="35">
+                <button type="button" class="aqua-scrollbar-button aqua-scrollbar-previous" aria-label="Scroll left">
+                  <svg viewBox="0 0 8 7"><path d="M5.5 1L2 3.5 5.5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="aqua-scrollbar-track">
+                  <div class="aqua-scrollbar-thumb"></div>
+                </div>
+                <button type="button" class="aqua-scrollbar-button aqua-scrollbar-next" aria-label="Scroll right">
+                  <svg viewBox="0 0 8 7"><path d="M2.5 1L6 3.5 2.5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="showcase-cloud">
+          <div class="tab-content"><p>Cloud sync is disabled in this demo.</p></div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="reference glass">
+      <h3>Using Aqua2</h3>
+      <p>
+        Include <code>&lt;script src="aqua2.js" defer&gt;&lt;/script&gt;</code> and apply component classes —
+        buttons, inputs, selects, sliders, progress bars, scrollbars, and tab views initialize automatically.
+        Tab panes need <code>.tab-pane</code> / <code>.active</code> CSS. Override <code>:root</code> variables to theme.
+      </p>
+    </aside>
+
+    <footer class="site-footer">
+      Aqua Neo showcase · Built with aqua2.js · Respects <code>prefers-color-scheme</code>
+    </footer>
+  </div>
+
+  <script>
+    const bubblesEl = document.querySelector(".bubbles");
+    const chkBubbles = document.getElementById("chk-bubbles");
+    const chkGlass = document.getElementById("chk-glass");
+
+    chkBubbles?.addEventListener("change", () => {
+      bubblesEl.style.opacity = chkBubbles.checked ? "1" : "0";
+    });
+
+    chkGlass?.addEventListener("change", () => {
+      document.querySelectorAll(".glass, .card").forEach(el => {
+        el.style.backdropFilter = chkGlass.checked ? "" : "none";
+        el.style.webkitBackdropFilter = chkGlass.checked ? "" : "none";
+      });
+    });
+
+    document.getElementById("hero-explore")?.addEventListener("click", () => {
+      document.getElementById("main-window")?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    const themeToggle = document.getElementById("hero-theme-toggle");
+    themeToggle?.addEventListener("click", () => {
+      const root = document.documentElement;
+      const next = root.dataset.theme === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      localStorage.setItem("aqua-theme", next);
+      themeToggle.title = next === "dark" ? "Switch to light mode" : "Switch to dark mode";
+      themeToggle.setAttribute("aria-label", themeToggle.title);
+    });
+    if (themeToggle) {
+      const isDark = document.documentElement.dataset.theme === "dark";
+      themeToggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+      themeToggle.setAttribute("aria-label", themeToggle.title);
+    }
+
+    document.getElementById("btn-launch")?.addEventListener("click", () => {
+      const progress = document.getElementById("download-progress");
+      const fill = progress?.querySelector(".aqua-progress-fill");
+      const downloadOut = document.getElementById("download-out");
+      if (!fill || !progress) return;
+      let v = 0;
+      const tick = () => {
+        v = Math.min(100, v + 3);
+        fill.style.width = v + "%";
+        progress.dataset.value = v;
+        if (downloadOut) downloadOut.textContent = Math.round(v);
+        if (v < 100) requestAnimationFrame(tick);
+      };
+      tick();
+      document.getElementById("main-window")?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.getElementById("btn-docs")?.addEventListener("click", () => {
+      document.querySelector(".reference")?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    const brightnessSlider = document.getElementById("brightness-slider");
+    const brightnessOut = document.getElementById("brightness-out");
+    const observer = new MutationObserver(() => {
+      if (brightnessSlider && brightnessOut)
+        brightnessOut.textContent = brightnessSlider.dataset.value;
+    });
+    if (brightnessSlider) {
+      observer.observe(brightnessSlider, { attributes: true, attributeFilter: ["data-value"] });
+    }
+
+    const contrastSlider = document.getElementById("contrast-slider");
+    const contrastOut = document.getElementById("contrast-out");
+    if (contrastSlider) {
+      new MutationObserver(() => {
+        if (contrastOut) contrastOut.textContent = contrastSlider.dataset.value;
+      }).observe(contrastSlider, { attributes: true, attributeFilter: ["data-value"] });
+    }
+
+    const volumeSlider = document.getElementById("volume-slider");
+    const volumeOut = document.getElementById("volume-out");
+    if (volumeSlider) {
+      new MutationObserver(() => {
+        if (volumeOut) volumeOut.textContent = volumeSlider.dataset.value;
+      }).observe(volumeSlider, { attributes: true, attributeFilter: ["data-value"] });
+    }
+
+    const galleryStrip = document.getElementById("gallery-strip");
+    const galleryScrollbar = document.getElementById("gallery-scrollbar");
+    const scrollPos = document.getElementById("scroll-pos");
+
+    if (galleryScrollbar && galleryStrip) {
+      new MutationObserver(() => {
+        const v = parseFloat(galleryScrollbar.dataset.value || "0");
+        if (scrollPos) scrollPos.textContent = Math.round(v);
+        const maxScroll = galleryStrip.scrollWidth - galleryStrip.clientWidth;
+        galleryStrip.scrollLeft = (v / 100) * maxScroll;
+      }).observe(galleryScrollbar, { attributes: true, attributeFilter: ["data-value"] });
+    }
+
+    let playing = false;
+    let playFrame = null;
+    const playbackProgress = document.getElementById("playback-progress");
+    const playFill = playbackProgress?.querySelector(".aqua-progress-fill");
+    const playBtn = document.getElementById("btn-play");
+    const playIcon = document.getElementById("play-icon");
+    const timeCurrent = document.getElementById("time-current");
+    const totalSec = 248;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return m + ":" + String(s).padStart(2, "0");
+    }
+
+    function togglePlay() {
+      playing = !playing;
+      if (playIcon) {
+        playIcon.innerHTML = playing
+          ? '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>'
+          : '<path d="M8 5v14l11-7z"/>';
+      }
+      if (!playing) {
+        cancelAnimationFrame(playFrame);
+        return;
+      }
+      const step = () => {
+        let pct = parseFloat(playbackProgress?.dataset.value || "34");
+        pct = Math.min(100, pct + 0.08);
+        if (playFill) playFill.style.width = pct + "%";
+        if (playbackProgress) playbackProgress.dataset.value = Math.round(pct);
+        if (timeCurrent) timeCurrent.textContent = formatTime((pct / 100) * totalSec);
+        if (pct < 100 && playing) playFrame = requestAnimationFrame(step);
+        else playing = false;
+      };
+      playFrame = requestAnimationFrame(step);
+    }
+
+    playBtn?.addEventListener("click", togglePlay);
+  </script>
+</body>
+</html>
