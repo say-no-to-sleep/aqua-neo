@@ -117,7 +117,7 @@
   color: var(--aqua-foreground);
   border: 1px solid var(--aqua-border);
   box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-  transition: background 0.20s ease, background-image 0.20s ease, border-color 0.20s ease, box-shadow 0.20s ease, transform 0.14s ease;
+  transition: transform 0.14s ease;
 }
 
 .aqua-toggle-button:hover, .graphite-toggle-button:hover {
@@ -127,6 +127,22 @@
 
 .aqua-toggle-button:active, .graphite-toggle-button:active {
   transform: scale(0.96);
+}
+
+.aqua-toggle-button:active:not([aria-pressed="true"]) {
+  background: var(--aqua-color);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.18) 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.26);
+}
+
+.graphite-toggle-button:active:not([aria-pressed="true"]) {
+  background: var(--graphite-color);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.00) 52%, rgba(255,255,255,0.14) 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
 .aqua-toggle-button[aria-pressed="true"] {
