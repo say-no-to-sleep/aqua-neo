@@ -528,6 +528,63 @@
   flex-shrink: 0;
 }
 
+.aqua-tooltip, .graphite-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 360;
+  box-sizing: border-box;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 58%, rgba(255,255,255,0.34));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.03) 100%),
+    color-mix(in srgb, var(--aqua-color) 2.5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 10px 26px rgba(0,0,0,0.12);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  color: var(--aqua-foreground);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(3px) scale(0.98);
+  transition: opacity 0.14s ease, transform 0.18s cubic-bezier(0.22,0.72,0.18,1), visibility 0.14s ease;
+}
+
+.graphite-tooltip {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--graphite-color) 3%, transparent);
+}
+
+[data-theme="dark"] .aqua-tooltip,
+[data-theme="dark"] .graphite-tooltip {
+  border-color: color-mix(in srgb, var(--aqua-border) 56%, rgba(255,255,255,0.18));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.012) 100%),
+    color-mix(in srgb, var(--aqua-color) 3%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.11), 0 12px 30px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .graphite-tooltip {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%),
+    color-mix(in srgb, var(--graphite-color) 3.5%, transparent);
+}
+
+.aqua-tooltip.aqua-tooltip-open,
+.graphite-tooltip.aqua-tooltip-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
 .aqua-code-block, .graphite-code-block {
   display: block;
   width: 100%;
@@ -3034,6 +3091,137 @@ function aquaFloatingPanel(panel) {
 }
 
 document.querySelectorAll('.aqua-floating-panel:not(.aqua-floating-panel--inline), .graphite-floating-panel:not(.aqua-floating-panel--inline)').forEach(aquaFloatingPanel);
+
+const aquaTooltipState = new WeakMap();
+const aquaTooltipOpen = new Set();
+
+function ensureTooltipFor(trigger) {
+  const existing = aquaTooltipState.get(trigger);
+  if (existing)
+    return existing;
+
+  const className = trigger.dataset.aquaTooltipClass || '';
+  const isGraphite = className.includes('graphite') || trigger.classList.contains('graphite-tooltip-source');
+  const tooltip = document.createElement('div');
+  tooltip.className = isGraphite ? 'graphite-tooltip' : 'aqua-tooltip';
+  tooltip.setAttribute('role', 'tooltip');
+  tooltip.id = trigger.id ? `${trigger.id}-tooltip` : `aqua-tooltip-${Math.random().toString(36).slice(2, 9)}`;
+  document.body.appendChild(tooltip);
+
+  const state = {
+    tooltip,
+    mode: trigger.dataset.aquaTooltipMode === 'follow' ? 'follow' : 'anchor',
+    pointerX: 0,
+    pointerY: 0,
+    frame: null
+  };
+
+  aquaTooltipState.set(trigger, state);
+  return state;
+}
+
+function positionTooltip(trigger, state) {
+  const tooltip = state.tooltip;
+  const margin = 10;
+  const pointerOffset = 14;
+  const rect = trigger.getBoundingClientRect();
+  const tipRect = tooltip.getBoundingClientRect();
+  let left;
+  let top;
+
+  if (state.mode === 'follow') {
+    left = state.pointerX + pointerOffset;
+    top = state.pointerY + pointerOffset;
+  } else {
+    left = rect.left + (rect.width - tipRect.width) / 2;
+    top = rect.top - tipRect.height - pointerOffset;
+  }
+
+  if (left + tipRect.width > window.innerWidth - margin)
+    left = window.innerWidth - tipRect.width - margin;
+  if (left < margin)
+    left = margin;
+  if (top + tipRect.height > window.innerHeight - margin)
+    top = window.innerHeight - tipRect.height - margin;
+  if (top < margin)
+    top = rect.bottom + pointerOffset;
+  if (top + tipRect.height > window.innerHeight - margin)
+    top = window.innerHeight - tipRect.height - margin;
+
+  tooltip.style.left = Math.round(left) + 'px';
+  tooltip.style.top = Math.round(top) + 'px';
+}
+
+function showTooltip(trigger) {
+  const text = trigger.dataset.aquaTooltip;
+
+  if (!text)
+    return;
+
+  const state = ensureTooltipFor(trigger);
+  state.tooltip.textContent = text;
+  positionTooltip(trigger, state);
+  state.tooltip.classList.add('aqua-tooltip-open');
+  trigger.setAttribute('aria-describedby', state.tooltip.id);
+  aquaTooltipOpen.add(trigger);
+}
+
+function hideTooltip(trigger) {
+  const state = aquaTooltipState.get(trigger);
+
+  if (!state)
+    return;
+
+  state.tooltip.classList.remove('aqua-tooltip-open');
+  trigger.removeAttribute('aria-describedby');
+  aquaTooltipOpen.delete(trigger);
+}
+
+document.querySelectorAll('[data-aqua-tooltip]').forEach(trigger => {
+  trigger.addEventListener('pointerenter', e => {
+    const state = ensureTooltipFor(trigger);
+    state.pointerX = e.clientX;
+    state.pointerY = e.clientY;
+    showTooltip(trigger);
+  });
+
+  trigger.addEventListener('pointermove', e => {
+    const state = aquaTooltipState.get(trigger);
+    if (!state || state.mode !== 'follow' || !aquaTooltipOpen.has(trigger))
+      return;
+
+    state.pointerX = e.clientX;
+    state.pointerY = e.clientY;
+
+    if (state.frame)
+      cancelAnimationFrame(state.frame);
+
+    state.frame = requestAnimationFrame(() => {
+      state.frame = null;
+      positionTooltip(trigger, state);
+    });
+  });
+
+  trigger.addEventListener('pointerleave', () => hideTooltip(trigger));
+  trigger.addEventListener('focus', () => showTooltip(trigger));
+  trigger.addEventListener('blur', () => hideTooltip(trigger));
+});
+
+window.addEventListener('scroll', () => {
+  aquaTooltipOpen.forEach(trigger => {
+    const state = aquaTooltipState.get(trigger);
+    if (state)
+      positionTooltip(trigger, state);
+  });
+}, true);
+
+window.addEventListener('resize', () => {
+  aquaTooltipOpen.forEach(trigger => {
+    const state = aquaTooltipState.get(trigger);
+    if (state)
+      positionTooltip(trigger, state);
+  });
+});
 
 document.querySelectorAll('.aqua-toggle-button, .graphite-toggle-button').forEach(button => {
   if (button.hasAttribute('data-aqua-floating-panel-toggle'))
