@@ -131,6 +131,7 @@ it independently.
 - Reusable glass material surface with blur (`backdrop-filter`) and rounded border
 - Designed to contain other Aqua2 controls or plain text
 - Use `.aqua-container` for blue-tinted glass and `.graphite-container` for neutral-tinted glass
+- When nesting another rounded Aqua surface such as `.aqua-container`, `.graphite-container`, `.aqua-graph`, or `.graphite-graph`, the parent container radius grows by the nested inset so the corners remain concentric
 - Container itself has no JS behavior; nested components initialize normally
 
 ---
@@ -195,6 +196,7 @@ it independently.
 - Dim horizontal stripes are built into the container background
 - Render the curve with SVG using `.aqua-graph-line`; optional filled underlay uses `.aqua-graph-area`
 - Use `preserveAspectRatio="none"` when the graph should stretch to the container
+- Graphs nested inside `.aqua-container` / `.graphite-container` keep their normal radius while the parent container radius expands to preserve concentric corners
 - `.aqua-graph` / `.graphite-graph` are static by default (no interactive behavior)
 - JS auto-initializes only `.aqua-interactive-graph` / `.graphite-interactive-graph` as interactive curve editors: pointer drag reshapes the nearest curve point, shows a vertical guide and handle, updates `data-values`, and supports keyboard arrows when focused
 - The graph handle is an absolutely positioned HTML element (`.aqua-graph-handle`) over the SVG, not an SVG `<circle>`; keep it outside the stretched SVG because `preserveAspectRatio="none"` makes SVG circles render as ovals when the container ratio changes

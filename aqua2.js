@@ -281,37 +281,61 @@
 
 .aqua-container:has(.aqua-container),
 .aqua-container:has(.graphite-container),
+.aqua-container:has(.aqua-graph),
+.aqua-container:has(.graphite-graph),
 .graphite-container:has(.aqua-container),
-.graphite-container:has(.graphite-container) {
+.graphite-container:has(.graphite-container),
+.graphite-container:has(.aqua-graph),
+.graphite-container:has(.graphite-graph) {
   border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
 }
 
 .aqua-container .aqua-container,
 .aqua-container .graphite-container,
+.aqua-container .aqua-graph,
+.aqua-container .graphite-graph,
 .graphite-container .aqua-container,
-.graphite-container .graphite-container {
+.graphite-container .graphite-container,
+.graphite-container .aqua-graph,
+.graphite-container .graphite-graph {
   border-radius: var(--aqua-surface-radius);
 }
 
 .aqua-container .aqua-container:has(.aqua-container),
 .aqua-container .aqua-container:has(.graphite-container),
+.aqua-container .aqua-container:has(.aqua-graph),
+.aqua-container .aqua-container:has(.graphite-graph),
 .aqua-container .graphite-container:has(.aqua-container),
 .aqua-container .graphite-container:has(.graphite-container),
+.aqua-container .graphite-container:has(.aqua-graph),
+.aqua-container .graphite-container:has(.graphite-graph),
 .graphite-container .aqua-container:has(.aqua-container),
 .graphite-container .aqua-container:has(.graphite-container),
+.graphite-container .aqua-container:has(.aqua-graph),
+.graphite-container .aqua-container:has(.graphite-graph),
 .graphite-container .graphite-container:has(.aqua-container),
-.graphite-container .graphite-container:has(.graphite-container) {
+.graphite-container .graphite-container:has(.graphite-container),
+.graphite-container .graphite-container:has(.aqua-graph),
+.graphite-container .graphite-container:has(.graphite-graph) {
   border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
 }
 
 .aqua-container:has(.aqua-container .aqua-container),
 .aqua-container:has(.aqua-container .graphite-container),
+.aqua-container:has(.aqua-container .aqua-graph),
+.aqua-container:has(.aqua-container .graphite-graph),
 .aqua-container:has(.graphite-container .aqua-container),
 .aqua-container:has(.graphite-container .graphite-container),
+.aqua-container:has(.graphite-container .aqua-graph),
+.aqua-container:has(.graphite-container .graphite-graph),
 .graphite-container:has(.aqua-container .aqua-container),
 .graphite-container:has(.aqua-container .graphite-container),
+.graphite-container:has(.aqua-container .aqua-graph),
+.graphite-container:has(.aqua-container .graphite-graph),
 .graphite-container:has(.graphite-container .aqua-container),
-.graphite-container:has(.graphite-container .graphite-container) {
+.graphite-container:has(.graphite-container .graphite-container),
+.graphite-container:has(.graphite-container .aqua-graph),
+.graphite-container:has(.graphite-container .graphite-graph) {
   border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset) * 2);
 }
 
