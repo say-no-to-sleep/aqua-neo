@@ -949,16 +949,16 @@
   -webkit-backdrop-filter: blur(18px) saturate(145%);
 }
 
-.aqua-graph.is-interactive,
-.graphite-graph.is-interactive {
+.aqua-interactive-graph,
+.graphite-interactive-graph {
   cursor: crosshair;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.aqua-graph.is-dragging,
-.graphite-graph.is-dragging {
+.aqua-interactive-graph.is-dragging,
+.graphite-interactive-graph.is-dragging {
   cursor: grabbing;
 }
 
@@ -1026,18 +1026,18 @@
   pointer-events: none;
 }
 
-.aqua-graph:hover .aqua-graph-guide,
-.aqua-graph:focus-visible .aqua-graph-guide,
-.aqua-graph.is-dragging .aqua-graph-guide,
-.graphite-graph:hover .aqua-graph-guide,
-.graphite-graph:focus-visible .aqua-graph-guide,
-.graphite-graph.is-dragging .aqua-graph-guide,
-.aqua-graph:hover .aqua-graph-handle,
-.aqua-graph:focus-visible .aqua-graph-handle,
-.aqua-graph.is-dragging .aqua-graph-handle,
-.graphite-graph:hover .aqua-graph-handle,
-.graphite-graph:focus-visible .aqua-graph-handle,
-.graphite-graph.is-dragging .aqua-graph-handle {
+.aqua-interactive-graph:hover .aqua-graph-guide,
+.aqua-interactive-graph:focus-visible .aqua-graph-guide,
+.aqua-interactive-graph.is-dragging .aqua-graph-guide,
+.graphite-interactive-graph:hover .aqua-graph-guide,
+.graphite-interactive-graph:focus-visible .aqua-graph-guide,
+.graphite-interactive-graph.is-dragging .aqua-graph-guide,
+.aqua-interactive-graph:hover .aqua-graph-handle,
+.aqua-interactive-graph:focus-visible .aqua-graph-handle,
+.aqua-interactive-graph.is-dragging .aqua-graph-handle,
+.graphite-interactive-graph:hover .aqua-graph-handle,
+.graphite-interactive-graph:focus-visible .aqua-graph-handle,
+.graphite-interactive-graph.is-dragging .aqua-graph-handle {
   opacity: 1;
 }
 
@@ -2741,7 +2741,7 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
   slider.addEventListener('pointercancel', onPointerUp);
 });
 
-document.querySelectorAll('.aqua-graph, .graphite-graph').forEach(graph => {
+document.querySelectorAll('.aqua-interactive-graph, .graphite-interactive-graph').forEach(graph => {
   const svg = graph.querySelector('svg');
 
   if (!svg)
@@ -2866,7 +2866,6 @@ document.querySelectorAll('.aqua-graph, .graphite-graph').forEach(graph => {
   let isDragging = false;
   let keyboardIndex = Math.floor(points.length / 2);
 
-  graph.classList.add('is-interactive');
   graph.setAttribute('tabindex', graph.getAttribute('tabindex') || '0');
   graph.setAttribute('role', graph.getAttribute('role') || 'slider');
   graph.setAttribute('aria-valuemin', '0');
