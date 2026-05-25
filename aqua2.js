@@ -528,6 +528,314 @@
   flex-shrink: 0;
 }
 
+.aqua-floating-control-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 255;
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(5px) saturate(92%);
+  -webkit-backdrop-filter: blur(5px) saturate(92%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.32s ease, visibility 0.32s ease;
+}
+
+.aqua-floating-control-panel-backdrop.aqua-floating-control-panel-backdrop-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.aqua-floating-control-panel,
+.graphite-floating-control-panel {
+  --aqua-control-panel-tab-size: 44px;
+  --aqua-control-panel-radius: var(--aqua-surface-radius);
+  --aqua-control-panel-morph-radius: 18px;
+  position: fixed;
+  z-index: 270;
+  top: 50%;
+  right: 0;
+  display: flex;
+  align-items: center;
+  width: min(342px, calc(100vw - 18px));
+  max-height: min(78vh, calc(100dvh - 32px));
+  color: var(--aqua-foreground);
+  transform: translate(calc(100% - var(--aqua-control-panel-tab-size)), -50%);
+  transition: transform 0.56s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.aqua-floating-control-panel[data-side="left"],
+.graphite-floating-control-panel[data-side="left"] {
+  left: 0;
+  right: auto;
+  flex-direction: row-reverse;
+  transform: translate(calc(-100% + var(--aqua-control-panel-tab-size)), -50%);
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-open,
+.graphite-floating-control-panel.aqua-floating-control-panel-open {
+  transform: translate(-16px, -50%);
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-closing,
+.graphite-floating-control-panel.aqua-floating-control-panel-closing {
+  transform: translate(calc(100% - var(--aqua-control-panel-tab-size)), -50%);
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-open,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-open {
+  transform: translate(16px, -50%);
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing {
+  transform: translate(calc(-100% + var(--aqua-control-panel-tab-size)), -50%);
+}
+
+.aqua-floating-control-panel-tab {
+  flex: 0 0 var(--aqua-control-panel-tab-size);
+  width: var(--aqua-control-panel-tab-size);
+  min-height: 64px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 64%, rgba(255,255,255,0.30));
+  border-right: 0;
+  border-radius: 18px 0 0 18px;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.035) 100%),
+    color-mix(in srgb, var(--aqua-color) 8%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), -7px 10px 22px rgba(0,0,0,0.10);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  color: var(--aqua-foreground);
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 0;
+  letter-spacing: 0;
+  transition:
+    opacity 0.22s ease,
+    transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.18s ease;
+}
+
+.aqua-floating-control-panel-tab::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border-left: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.aqua-floating-control-panel[data-side="left"] .aqua-floating-control-panel-tab::before,
+.graphite-floating-control-panel[data-side="left"] .aqua-floating-control-panel-tab::before {
+  transform: rotate(225deg);
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
+.aqua-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
+.aqua-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-tab {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(18px) scale(0.72);
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-tab {
+  transform: translateX(-18px) scale(0.72);
+}
+
+.aqua-floating-control-panel[data-side="left"] .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel[data-side="left"] .aqua-floating-control-panel-tab {
+  border-right: 1px solid color-mix(in srgb, var(--aqua-border) 64%, rgba(255,255,255,0.30));
+  border-left: 0;
+  border-radius: 0 18px 18px 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 7px 10px 22px rgba(0,0,0,0.10);
+}
+
+.aqua-floating-control-panel-tab:hover {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.055) 100%),
+    color-mix(in srgb, var(--aqua-color) 12%, transparent);
+}
+
+.aqua-floating-control-panel-surface {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-height: inherit;
+  overflow: auto;
+  padding: 16px;
+  border-radius: var(--aqua-control-panel-morph-radius);
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 62%, rgba(255,255,255,0.30));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.026) 100%),
+    color-mix(in srgb, var(--aqua-color) 3.5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 18px 46px rgba(0,0,0,0.18);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  transform: translateX(10px) scale(0.985);
+  transform-origin: right center;
+  opacity: 0.88;
+  filter: saturate(0.94) brightness(1.03);
+  transition:
+    border-radius 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.24s ease,
+    opacity 0.24s ease,
+    transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: border-radius, filter, opacity, transform;
+  -webkit-overflow-scrolling: touch;
+}
+
+.aqua-floating-control-panel[data-side="left"] .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel[data-side="left"] .aqua-floating-control-panel-surface {
+  transform-origin: left center;
+  transform: translateX(-10px) scale(0.985);
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-surface {
+  border-radius: var(--aqua-control-panel-radius);
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  filter: saturate(1) brightness(1);
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-surface {
+  animation-name: aqua-floating-control-panel-surface-open-left;
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-surface {
+  animation-name: aqua-floating-control-panel-surface-close-left;
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-surface {
+  animation: aqua-floating-control-panel-surface-open 0.54s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-surface,
+.graphite-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-surface {
+  animation: aqua-floating-control-panel-surface-close 0.34s cubic-bezier(0.4,0,0.7,0.28) both;
+}
+
+@keyframes aqua-floating-control-panel-surface-open {
+  0% {
+    border-radius: var(--aqua-control-panel-morph-radius);
+    transform: translateX(10px) scale(0.985);
+    opacity: 0.88;
+    filter: saturate(0.94) brightness(1.03);
+  }
+  58% {
+    transform: translateX(-3px) scale(1.006);
+  }
+  100% {
+    border-radius: var(--aqua-control-panel-radius);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes aqua-floating-control-panel-surface-close {
+  0% {
+    border-radius: var(--aqua-control-panel-radius);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+  100% {
+    border-radius: var(--aqua-control-panel-morph-radius);
+    transform: translateX(10px) scale(0.985);
+    opacity: 0.88;
+    filter: saturate(0.94) brightness(1.03);
+  }
+}
+
+@keyframes aqua-floating-control-panel-surface-open-left {
+  0% {
+    border-radius: var(--aqua-control-panel-morph-radius);
+    transform: translateX(-10px) scale(0.985);
+    opacity: 0.88;
+    filter: saturate(0.94) brightness(1.03);
+  }
+  58% {
+    transform: translateX(3px) scale(1.006);
+  }
+  100% {
+    border-radius: var(--aqua-control-panel-radius);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes aqua-floating-control-panel-surface-close-left {
+  0% {
+    border-radius: var(--aqua-control-panel-radius);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+  100% {
+    border-radius: var(--aqua-control-panel-morph-radius);
+    transform: translateX(-10px) scale(0.985);
+    opacity: 0.88;
+    filter: saturate(0.94) brightness(1.03);
+  }
+}
+
+.graphite-floating-control-panel .aqua-floating-control-panel-tab {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 100%),
+    color-mix(in srgb, var(--graphite-color) 9%, transparent);
+}
+
+.graphite-floating-control-panel .aqua-floating-control-panel-tab:hover {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--graphite-color) 13%, transparent);
+}
+
+.graphite-floating-control-panel .aqua-floating-control-panel-surface {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--graphite-color) 4%, transparent);
+}
+
+[data-theme="dark"] .aqua-floating-control-panel-backdrop {
+  background: rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .aqua-floating-control-panel-tab {
+  border-color: color-mix(in srgb, var(--aqua-border) 62%, rgba(255,255,255,0.18));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--aqua-color) 8%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), -7px 10px 22px rgba(0,0,0,0.30);
+}
+
+[data-theme="dark"] .aqua-floating-control-panel-surface {
+  border-color: color-mix(in srgb, var(--aqua-border) 60%, rgba(255,255,255,0.16));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.012) 100%),
+    color-mix(in srgb, var(--aqua-color) 4%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 20px 52px rgba(0,0,0,0.42);
+}
+
 .aqua-tooltip, .graphite-tooltip {
   position: fixed;
   left: 0;
@@ -3091,6 +3399,136 @@ function aquaFloatingPanel(panel) {
 }
 
 document.querySelectorAll('.aqua-floating-panel:not(.aqua-floating-panel--inline), .graphite-floating-panel:not(.aqua-floating-panel--inline)').forEach(aquaFloatingPanel);
+
+const aquaFloatingControlPanels = [];
+
+function aquaFloatingControlPanel(panel) {
+  const trigger = panel.querySelector('[data-aqua-floating-control-panel-toggle], .aqua-floating-control-panel-tab');
+  const surface = panel.querySelector('.aqua-floating-control-panel-surface');
+  const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const backdrop = document.createElement('div');
+  let lastFocus = null;
+
+  if (!trigger || !surface)
+    return;
+
+  if (panel.parentElement !== document.body)
+    document.body.appendChild(panel);
+
+  backdrop.className = 'aqua-floating-control-panel-backdrop';
+  document.body.appendChild(backdrop);
+  trigger.setAttribute('aria-expanded', panel.classList.contains('aqua-floating-control-panel-open') ? 'true' : 'false');
+
+  if (!surface.id)
+    surface.id = panel.id ? `${panel.id}-surface` : `aqua-floating-control-panel-${aquaFloatingControlPanels.length + 1}`;
+
+  trigger.setAttribute('aria-controls', surface.id);
+
+  function isOpen() {
+    return panel.classList.contains('aqua-floating-control-panel-open');
+  }
+
+  function firstFocusable() {
+    return surface.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  }
+
+  function setSurfaceHidden(hidden) {
+    surface.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+    if (hidden)
+      surface.setAttribute('inert', '');
+    else
+      surface.removeAttribute('inert');
+  }
+
+  function sync(open) {
+    panel.classList.toggle('aqua-floating-control-panel-open', open);
+    backdrop.classList.toggle('aqua-floating-control-panel-backdrop-open', open);
+    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    setSurfaceHidden(!open);
+  }
+
+  function finishClose() {
+    panel.classList.remove('aqua-floating-control-panel-closing');
+    backdrop.classList.remove('aqua-floating-control-panel-backdrop-open');
+    trigger.setAttribute('aria-expanded', 'false');
+    setSurfaceHidden(true);
+  }
+
+  function show() {
+    if (isOpen())
+      return;
+
+    aquaFloatingControlPanels.forEach(instance => {
+      if (instance.panel !== panel)
+        instance.hide();
+    });
+
+    lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    panel.classList.remove('aqua-floating-control-panel-closing');
+    sync(true);
+
+    if (!prefersReducedMotion())
+      panel.classList.add('aqua-floating-control-panel-opening');
+
+    if (!prefersReducedMotion())
+      window.setTimeout(() => firstFocusable()?.focus({ preventScroll: true }), 160);
+    else
+      firstFocusable()?.focus({ preventScroll: true });
+  }
+
+  function hide() {
+    if (!isOpen())
+      return;
+
+    panel.classList.remove('aqua-floating-control-panel-opening');
+
+    if (prefersReducedMotion()) {
+      panel.classList.remove('aqua-floating-control-panel-open', 'aqua-floating-control-panel-closing');
+      finishClose();
+    } else {
+      panel.classList.remove('aqua-floating-control-panel-open');
+      panel.classList.add('aqua-floating-control-panel-closing');
+      trigger.setAttribute('aria-expanded', 'false');
+      setSurfaceHidden(true);
+    }
+
+    if (lastFocus && document.contains(lastFocus))
+      lastFocus.focus({ preventScroll: true });
+  }
+
+  trigger.addEventListener('click', () => {
+    isOpen() ? hide() : show();
+  });
+
+  backdrop.addEventListener('click', hide);
+  surface.querySelectorAll('[data-aqua-floating-control-panel-dismiss]').forEach(button => {
+    button.addEventListener('click', hide);
+  });
+
+  surface.addEventListener('animationend', e => {
+    if (e.target !== surface)
+      return;
+
+    if (e.animationName === 'aqua-floating-control-panel-surface-open') {
+      panel.classList.remove('aqua-floating-control-panel-opening');
+    } else if (e.animationName === 'aqua-floating-control-panel-surface-close') {
+      finishClose();
+    }
+  });
+
+  sync(isOpen());
+  aquaFloatingControlPanels.push({ panel, hide });
+}
+
+document.querySelectorAll('.aqua-floating-control-panel, .graphite-floating-control-panel').forEach(aquaFloatingControlPanel);
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape')
+    return;
+
+  aquaFloatingControlPanels.forEach(instance => instance.hide());
+});
 
 const aquaTooltipState = new WeakMap();
 const aquaTooltipOpen = new Set();

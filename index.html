@@ -764,6 +764,9 @@
                     </div>
                   </div>
                 </div>
+                <p style="margin:12px 0 0;font-size:13px;line-height:1.45;opacity:0.88">
+                  The edge-mounted control panel tab stays visible on narrow layouts and expands into a focused control surface.
+                </p>
               </div>
 
               <div class="card">
@@ -901,7 +904,7 @@
       <h3>Using Aqua2</h3>
       <p>
         Include <code>&lt;script src="aqua2.js" defer&gt;&lt;/script&gt;</code> and apply component classes —
-        buttons, inputs, selects, sliders, progress bars, scrollbars, floating panels, and tab views initialize automatically.
+        buttons, inputs, selects, sliders, progress bars, scrollbars, floating panels, floating control panels, and tab views initialize automatically.
         Tab panes need <code>.tab-pane</code> / <code>.active</code> CSS. Override <code>:root</code> variables to theme.
       </p>
     </aside>
@@ -932,6 +935,39 @@
         </div>
       </div>
     </div>
+
+    <aside
+      class="aqua-floating-control-panel"
+      id="demo-floating-control-panel"
+      data-side="right"
+      aria-label="Floating control panel"
+    >
+      <button
+        type="button"
+        class="aqua-floating-control-panel-tab"
+        data-aqua-floating-control-panel-toggle
+        aria-label="Expand controls"
+      ></button>
+      <div class="aqua-floating-control-panel-surface">
+        <p class="aqua-floating-panel-title">Control panel</p>
+        <p class="aqua-floating-panel-body">Pinned to the viewport edge so dense controls stay reachable.</p>
+        <p class="aqua-floating-panel-section">Display</p>
+        <div class="slider-label">
+          <span>Glow</span>
+          <output>64</output>
+        </div>
+        <div class="aqua-slider" data-min="0" data-max="100" data-value="64">
+          <div class="aqua-slider-track">
+            <div class="aqua-slider-fill"></div>
+            <div class="aqua-slider-thumb"></div>
+          </div>
+        </div>
+        <div class="control-row" style="margin-top:12px">
+          <button type="button" class="aqua-toggle-button" aria-pressed="true">Live</button>
+          <button type="button" class="graphite-button" data-aqua-floating-control-panel-dismiss>Collapse</button>
+        </div>
+      </div>
+    </aside>
 
     <footer class="site-footer">
       Aqua Neo showcase · Built with aqua2.js · Respects <code>prefers-color-scheme</code>

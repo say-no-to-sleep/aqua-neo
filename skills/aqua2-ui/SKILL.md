@@ -18,9 +18,8 @@ on load — no external CSS file to import. Just include the script and use the 
 <script src="/aqua2.js" defer></script>
 ```
 
-All components are pure CSS except for **Tab View**, **Select**, **Slider**, **Progress**, **Graph**, and
-**Scrollbar**, which require the JS initializers that `aqua2.js` runs automatically on
-`DOMContentLoaded`.
+Most components are CSS-first. Components marked `Auto` in the quick reference have JS
+initializers that `aqua2.js` runs automatically on `DOMContentLoaded`.
 
 ---
 
@@ -133,6 +132,45 @@ it independently.
 - Designed to contain other Aqua2 controls or plain text
 - Use `.aqua-container` for blue-tinted glass and `.graphite-container` for neutral-tinted glass
 - Container itself has no JS behavior; nested components initialize normally
+
+---
+
+## Floating Control Panel
+
+```html
+<aside class="aqua-floating-control-panel" id="settings-panel" data-side="right" aria-label="Settings">
+  <button
+    type="button"
+    class="aqua-floating-control-panel-tab"
+    data-aqua-floating-control-panel-toggle
+    aria-label="Expand controls"
+  ></button>
+  <div class="aqua-floating-control-panel-surface">
+    <p class="aqua-floating-panel-title">Controls</p>
+    <div class="aqua-slider" data-min="0" data-max="100" data-value="64">
+      <div class="aqua-slider-track">
+        <div class="aqua-slider-fill"></div>
+        <div class="aqua-slider-thumb"></div>
+      </div>
+    </div>
+    <button type="button" class="graphite-button" data-aqua-floating-control-panel-dismiss>Collapse</button>
+  </div>
+</aside>
+
+<!-- Graphite variant -->
+<aside class="graphite-floating-control-panel" data-side="left">...</aside>
+```
+- Edge-mounted control drawer for keeping dense controls reachable on narrow/slim layouts
+- Closed state leaves only an icon-only `.aqua-floating-control-panel-tab` arrow visible on the viewport edge
+- Open state slides the glass surface into view while morphing from a compressed side strip into the full panel, dims/blurs the rest of the page with a backdrop, and focuses the first control inside
+- Closing reverses the morph with `.aqua-floating-control-panel-closing`; let the JS remove this class after the surface animation ends
+- Use `data-side="right"` or `data-side="left"`; right is the default visual pattern
+- Put controls inside `.aqua-floating-control-panel-surface`
+- Use `data-aqua-floating-control-panel-toggle` on the edge tab and `data-aqua-floating-control-panel-dismiss` on any collapse button
+- Keep visible text out of the edge tab; use `aria-label` for the accessible name
+- JS reparents the panel to `document.body` so it stays above the backdrop blur even when authored inside an app stacking context
+- JS manages `aria-expanded`, hides the closed surface from focus with `inert`, closes on backdrop click, and closes on Escape
+- Use this instead of a normal floating panel when controls should always be discoverable from the side of the viewport
 
 ---
 
@@ -542,6 +580,7 @@ palettes.
 | Focused/pulsing button | `aqua-button-focused` / `graphite-button-focused` (any shape) | No |
 | Toggle button | `aqua-toggle-button` / `graphite-toggle-button` | Auto |
 | Glass container | `aqua-container` / `graphite-container` | No |
+| Floating control panel | `aqua-floating-control-panel` / `graphite-floating-control-panel` | Auto |
 | Graph (static) | `aqua-graph` / `graphite-graph` with `.aqua-graph-line` | No |
 | Graph (interactive) | `aqua-graph aqua-interactive-graph` / `graphite-graph graphite-interactive-graph` | Auto |
 | Tooltip | Any trigger with `data-aqua-tooltip` (`graphite-tooltip-source` for graphite style) | Auto |
