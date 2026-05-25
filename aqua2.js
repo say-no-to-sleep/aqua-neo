@@ -14,6 +14,9 @@
   --aqua-foreground-muted:   rgba(0, 0, 0, 0.38);
   --aqua-background:         rgba(0, 0, 0, 0.07);
   --aqua-border:             rgba(0, 0, 0, 0.12);
+  --aqua-surface-radius:           25px;
+  --aqua-container-nested-inset:   14px;
+  --aqua-floating-panel-nested-inset: 12px;
 }
 
 [data-theme="dark"] {
@@ -227,8 +230,8 @@
   position: relative;
   display: block;
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
+  padding: var(--aqua-container-nested-inset) 16px;
+  border-radius: var(--aqua-surface-radius);
   border: 1px solid color-mix(in srgb, var(--aqua-border) 86%, rgba(255,255,255,0.34));
   background:
     linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 100%),
@@ -260,12 +263,261 @@
     color-mix(in srgb, var(--graphite-color) 7%, transparent);
 }
 
+.aqua-container:has(.aqua-container),
+.aqua-container:has(.graphite-container),
+.graphite-container:has(.aqua-container),
+.graphite-container:has(.graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
+}
+
+.aqua-container .aqua-container,
+.aqua-container .graphite-container,
+.graphite-container .aqua-container,
+.graphite-container .graphite-container {
+  border-radius: var(--aqua-surface-radius);
+}
+
+.aqua-container .aqua-container:has(.aqua-container),
+.aqua-container .aqua-container:has(.graphite-container),
+.aqua-container .graphite-container:has(.aqua-container),
+.aqua-container .graphite-container:has(.graphite-container),
+.graphite-container .aqua-container:has(.aqua-container),
+.graphite-container .aqua-container:has(.graphite-container),
+.graphite-container .graphite-container:has(.aqua-container),
+.graphite-container .graphite-container:has(.graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
+}
+
+.aqua-container:has(.aqua-container .aqua-container),
+.aqua-container:has(.aqua-container .graphite-container),
+.aqua-container:has(.graphite-container .aqua-container),
+.aqua-container:has(.graphite-container .graphite-container),
+.graphite-container:has(.aqua-container .aqua-container),
+.graphite-container:has(.aqua-container .graphite-container),
+.graphite-container:has(.graphite-container .aqua-container),
+.graphite-container:has(.graphite-container .graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset) * 2);
+}
+
+.aqua-floating-panel, .graphite-floating-panel {
+  position: fixed;
+  z-index: 240;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  box-sizing: border-box;
+  width: min(100%, 320px);
+  max-width: calc(100vw - 32px);
+  max-height: min(72vh, calc(100dvh - 32px));
+  padding: var(--aqua-floating-panel-nested-inset) 14px;
+  overflow: auto;
+  border-radius: var(--aqua-surface-radius);
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 62%, rgba(255,255,255,0.28));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--aqua-color) 2.5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 14px 36px rgba(0,0,0,0.10);
+  backdrop-filter: blur(24px) saturate(125%);
+  -webkit-backdrop-filter: blur(24px) saturate(125%);
+  color: var(--aqua-foreground);
+  -webkit-overflow-scrolling: touch;
+  transform-origin: bottom right;
+  will-change: transform, opacity;
+}
+
+.aqua-floating-panel:not(.aqua-floating-panel--inline):not(.aqua-floating-panel-open):not(.aqua-floating-panel-closing),
+.graphite-floating-panel:not(.aqua-floating-panel--inline):not(.aqua-floating-panel-open):not(.aqua-floating-panel-closing) {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: scale(0.92) translateY(16px);
+}
+
+.aqua-floating-panel.aqua-floating-panel-open:not(.aqua-floating-panel-closing),
+.graphite-floating-panel.aqua-floating-panel-open:not(.aqua-floating-panel-closing) {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: scale(1) translateY(0);
+  animation: aqua-floating-panel-open 0.38s cubic-bezier(0.22,0.72,0.18,1) both;
+}
+
+.aqua-floating-panel.aqua-floating-panel-closing,
+.graphite-floating-panel.aqua-floating-panel-closing {
+  opacity: 1;
+  pointer-events: none;
+  visibility: visible;
+  animation: aqua-floating-panel-close 0.28s cubic-bezier(0.4,0,0.7,0.28) both;
+}
+
+@keyframes aqua-floating-panel-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes aqua-floating-panel-close {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+}
+
+.aqua-floating-panel[data-anchor="top-left"],
+.graphite-floating-panel[data-anchor="top-left"] {
+  transform-origin: top left;
+}
+
+.aqua-floating-panel[data-anchor="top-right"],
+.graphite-floating-panel[data-anchor="top-right"] {
+  transform-origin: top right;
+}
+
+.aqua-floating-panel[data-anchor="bottom-left"],
+.graphite-floating-panel[data-anchor="bottom-left"] {
+  transform-origin: bottom left;
+}
+
+.graphite-floating-panel {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--graphite-color) 3%, transparent);
+}
+
+[data-theme="dark"] .aqua-floating-panel,
+[data-theme="dark"] .graphite-floating-panel {
+  border-color: color-mix(in srgb, var(--aqua-border) 58%, rgba(255,255,255,0.16));
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%),
+    color-mix(in srgb, var(--aqua-color) 3.5%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 16px 40px rgba(0,0,0,0.32);
+}
+
+[data-theme="dark"] .graphite-floating-panel {
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.008) 100%),
+    color-mix(in srgb, var(--graphite-color) 3.5%, transparent);
+}
+
+.aqua-floating-panel:has(.aqua-container),
+.aqua-floating-panel:has(.graphite-container),
+.graphite-floating-panel:has(.aqua-container),
+.graphite-floating-panel:has(.graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-floating-panel-nested-inset));
+}
+
+.aqua-floating-panel .aqua-container,
+.aqua-floating-panel .graphite-container,
+.graphite-floating-panel .aqua-container,
+.graphite-floating-panel .graphite-container {
+  border-radius: var(--aqua-surface-radius);
+}
+
+.aqua-floating-panel:has(.aqua-container .aqua-container),
+.aqua-floating-panel:has(.aqua-container .graphite-container),
+.aqua-floating-panel:has(.graphite-container .aqua-container),
+.aqua-floating-panel:has(.graphite-container .graphite-container),
+.graphite-floating-panel:has(.aqua-container .aqua-container),
+.graphite-floating-panel:has(.aqua-container .graphite-container),
+.graphite-floating-panel:has(.graphite-container .aqua-container),
+.graphite-floating-panel:has(.graphite-container .graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-floating-panel-nested-inset) + var(--aqua-container-nested-inset));
+}
+
+.aqua-floating-panel .aqua-container:has(.aqua-container),
+.aqua-floating-panel .aqua-container:has(.graphite-container),
+.aqua-floating-panel .graphite-container:has(.aqua-container),
+.aqua-floating-panel .graphite-container:has(.graphite-container),
+.graphite-floating-panel .aqua-container:has(.aqua-container),
+.graphite-floating-panel .aqua-container:has(.graphite-container),
+.graphite-floating-panel .graphite-container:has(.aqua-container),
+.graphite-floating-panel .graphite-container:has(.graphite-container) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
+}
+
+.aqua-floating-panel--inline,
+.graphite-floating-panel.aqua-floating-panel--inline {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+}
+
+.aqua-floating-panel:has(> .aqua-container:only-child),
+.aqua-floating-panel:has(> .graphite-container:only-child),
+.graphite-floating-panel:has(> .aqua-container:only-child),
+.graphite-floating-panel:has(> .graphite-container:only-child) {
+  gap: 0;
+}
+
+.aqua-floating-panel > .aqua-container,
+.aqua-floating-panel > .graphite-container,
+.graphite-floating-panel > .aqua-container,
+.graphite-floating-panel > .graphite-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.aqua-floating-panel-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--aqua-foreground);
+}
+
+.aqua-floating-panel-body {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--aqua-foreground-muted);
+}
+
+.aqua-floating-panel-section {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--aqua-foreground);
+}
+
+.aqua-floating-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.aqua-floating-panel .aqua-container,
+.aqua-floating-panel .graphite-container,
+.graphite-floating-panel .aqua-container,
+.graphite-floating-panel .graphite-container {
+  flex-shrink: 0;
+}
+
 .aqua-code-block, .graphite-code-block {
   display: block;
   width: 100%;
   max-height: 220px;
   overflow: auto;
-  border-radius: 12px;
+  border-radius: var(--aqua-surface-radius);
   border: 1px solid color-mix(in srgb, var(--aqua-border) 86%, rgba(255,255,255,0.34));
   background:
     linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 100%),
@@ -601,7 +853,7 @@
   align-items: center;
   gap: 9px;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--aqua-surface-radius);
   border: 1px solid color-mix(in srgb, var(--aqua-border) 85%, rgba(255,255,255,0.36));
   background:
     linear-gradient(to bottom, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.04) 100%),
@@ -663,7 +915,7 @@
   display: block;
   width: 100%;
   min-height: 132px;
-  border-radius: 22px;
+  border-radius: var(--aqua-surface-radius);
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--aqua-border) 78%, rgba(255,255,255,0.40));
   background:
@@ -1585,6 +1837,12 @@
   .aqua-tabview-panes.height-animating {
     transition: none;
   }
+
+  .aqua-floating-panel:not(.aqua-floating-panel--inline),
+  .graphite-floating-panel:not(.aqua-floating-panel--inline) {
+    animation: none;
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2427,7 +2685,104 @@ function aquaProgressIndicator(progressIndicator) {
 
 document.querySelectorAll('.aqua-progress').forEach(aquaProgressIndicator);
 
+function aquaFloatingPanel(panel) {
+  if (panel.classList.contains('aqua-floating-panel--inline'))
+    return;
+
+  const panelId = panel.id;
+  const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function toggles() {
+    if (!panelId)
+      return [];
+
+    return Array.from(document.querySelectorAll(`[data-aqua-floating-panel-toggle="${panelId}"]`));
+  }
+
+  function isOpen() {
+    return panel.classList.contains('aqua-floating-panel-open');
+  }
+
+  function syncToggles(open) {
+    toggles().forEach(button => {
+      button.setAttribute('aria-pressed', open ? 'true' : 'false');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
+  function setHiddenState(open) {
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open)
+      panel.removeAttribute('inert');
+    else
+      panel.setAttribute('inert', '');
+  }
+
+  function finishClose() {
+    panel.classList.remove('aqua-floating-panel-closing');
+    setHiddenState(false);
+    syncToggles(false);
+  }
+
+  function show() {
+    if (isOpen())
+      return;
+
+    panel.classList.remove('aqua-floating-panel-closing');
+    panel.classList.add('aqua-floating-panel-open');
+    setHiddenState(true);
+    syncToggles(true);
+  }
+
+  function hide() {
+    if (!isOpen() && !panel.classList.contains('aqua-floating-panel-closing'))
+      return;
+
+    if (prefersReducedMotion()) {
+      panel.classList.remove('aqua-floating-panel-open', 'aqua-floating-panel-closing');
+      finishClose();
+      return;
+    }
+
+    panel.classList.remove('aqua-floating-panel-open');
+    panel.classList.add('aqua-floating-panel-closing');
+    syncToggles(false);
+  }
+
+  panel.addEventListener('animationend', e => {
+    if (e.target !== panel || e.animationName !== 'aqua-floating-panel-close')
+      return;
+
+    finishClose();
+  });
+
+  toggles().forEach(button => {
+    button.addEventListener('click', () => {
+      if (isOpen())
+        hide();
+      else
+        show();
+    });
+  });
+
+  panel.querySelectorAll('[data-aqua-floating-panel-dismiss]').forEach(button => {
+    button.addEventListener('click', hide);
+  });
+
+  if (panel.classList.contains('aqua-floating-panel-open')) {
+    setHiddenState(true);
+    syncToggles(true);
+  } else {
+    finishClose();
+  }
+}
+
+document.querySelectorAll('.aqua-floating-panel:not(.aqua-floating-panel--inline), .graphite-floating-panel:not(.aqua-floating-panel--inline)').forEach(aquaFloatingPanel);
+
 document.querySelectorAll('.aqua-toggle-button, .graphite-toggle-button').forEach(button => {
+  if (button.hasAttribute('data-aqua-floating-panel-toggle'))
+    return;
+
   if (!button.hasAttribute('aria-pressed'))
     button.setAttribute('aria-pressed', 'false');
 

@@ -458,6 +458,15 @@
       </div>
       <div class="header-actions">
         <button type="button" class="graphite-button" id="btn-docs">Documentation</button>
+        <button
+          type="button"
+          class="aqua-toggle-button"
+          id="btn-toggle-panel"
+          data-aqua-floating-panel-toggle="demo-floating-panel"
+          aria-pressed="false"
+          aria-expanded="false"
+          aria-controls="demo-floating-panel"
+        >Quick actions</button>
         <button type="button" class="aqua-button-focused" id="btn-launch">Launch Demo</button>
       </div>
     </header>
@@ -724,6 +733,32 @@
               </div>
 
               <div class="card">
+                <p class="section-title">Floating Panel</p>
+                <p style="margin:0 0 12px;font-size:13px;line-height:1.45;opacity:0.88">
+                  Viewport-fixed glass overlays with open/close animation. Use the <strong>Quick actions</strong> toggle in the
+                  header, or wire <code>data-aqua-floating-panel-toggle</code> / <code>data-aqua-floating-panel-dismiss</code>.
+                </p>
+                <div class="control-row" style="margin:0 0 12px">
+                  <button
+                    type="button"
+                    class="aqua-toggle-button"
+                    data-aqua-floating-panel-toggle="demo-floating-panel"
+                    aria-pressed="false"
+                    aria-expanded="false"
+                    aria-controls="demo-floating-panel"
+                  >Show panel</button>
+                </div>
+                <div class="graphite-floating-panel aqua-floating-panel--inline">
+                  <div class="aqua-container">
+                    <p class="aqua-floating-panel-title">In-flow preview (not fixed)</p>
+                    <div class="aqua-floating-panel-actions">
+                      <button type="button" class="aqua-button">Action</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
                 <p class="section-title">Graph</p>
                 <div class="aqua-graph" aria-label="Sample waveform graph">
                   <svg viewBox="0 0 320 132" preserveAspectRatio="none" aria-hidden="true">
@@ -846,10 +881,37 @@
       <h3>Using Aqua2</h3>
       <p>
         Include <code>&lt;script src="aqua2.js" defer&gt;&lt;/script&gt;</code> and apply component classes —
-        buttons, inputs, selects, sliders, progress bars, scrollbars, and tab views initialize automatically.
+        buttons, inputs, selects, sliders, progress bars, scrollbars, floating panels, and tab views initialize automatically.
         Tab panes need <code>.tab-pane</code> / <code>.active</code> CSS. Override <code>:root</code> variables to theme.
       </p>
     </aside>
+
+    <div
+      class="aqua-floating-panel"
+      id="demo-floating-panel"
+      role="complementary"
+      aria-label="Quick actions"
+      aria-hidden="true"
+      inert
+      data-anchor="bottom-right"
+      style="right:20px;bottom:20px;width:min(292px,calc(100vw - 40px))"
+    >
+      <div class="aqua-container">
+        <p class="aqua-floating-panel-title">Floating panel</p>
+        <p class="aqua-floating-panel-body">Fixed to the viewport — scroll independent.</p>
+        <p class="aqua-floating-panel-section">Intensity</p>
+        <div class="aqua-slider" data-min="0" data-max="100" data-value="42">
+          <div class="aqua-slider-track">
+            <div class="aqua-slider-fill"></div>
+            <div class="aqua-slider-thumb"></div>
+          </div>
+        </div>
+        <div class="aqua-floating-panel-actions">
+          <button type="button" class="aqua-button">Apply</button>
+          <button type="button" class="graphite-button" data-aqua-floating-panel-dismiss>Dismiss</button>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer">
       Aqua Neo showcase · Built with aqua2.js · Respects <code>prefers-color-scheme</code>
