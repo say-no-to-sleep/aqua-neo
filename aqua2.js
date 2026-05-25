@@ -949,6 +949,19 @@
   -webkit-backdrop-filter: blur(18px) saturate(145%);
 }
 
+.aqua-graph.is-interactive,
+.graphite-graph.is-interactive {
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.aqua-graph.is-dragging,
+.graphite-graph.is-dragging {
+  cursor: grabbing;
+}
+
 .graphite-graph {
   --aqua-graph-line: var(--graphite-color);
   background:
@@ -982,6 +995,50 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--aqua-graph-line) 58%, transparent));
+}
+
+.aqua-graph-hit {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.aqua-graph-guide {
+  stroke: color-mix(in srgb, var(--aqua-graph-line) 45%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+
+.aqua-graph-handle {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--aqua-graph-line);
+  border: 2px solid rgba(255,255,255,0.82);
+  opacity: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.18), 0 0 7px color-mix(in srgb, var(--aqua-graph-line) 42%, transparent);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+
+.aqua-graph:hover .aqua-graph-guide,
+.aqua-graph:focus-visible .aqua-graph-guide,
+.aqua-graph.is-dragging .aqua-graph-guide,
+.graphite-graph:hover .aqua-graph-guide,
+.graphite-graph:focus-visible .aqua-graph-guide,
+.graphite-graph.is-dragging .aqua-graph-guide,
+.aqua-graph:hover .aqua-graph-handle,
+.aqua-graph:focus-visible .aqua-graph-handle,
+.aqua-graph.is-dragging .aqua-graph-handle,
+.graphite-graph:hover .aqua-graph-handle,
+.graphite-graph:focus-visible .aqua-graph-handle,
+.graphite-graph.is-dragging .aqua-graph-handle {
+  opacity: 1;
 }
 
 [data-theme="dark"] .aqua-graph,
@@ -2682,6 +2739,190 @@ document.querySelectorAll('.aqua-slider').forEach(slider => {
   slider.addEventListener('pointermove', onPointerMove);
   slider.addEventListener('pointerup', onPointerUp);
   slider.addEventListener('pointercancel', onPointerUp);
+});
+
+document.querySelectorAll('.aqua-graph, .graphite-graph').forEach(graph => {
+  const svg = graph.querySelector('svg');
+
+  if (!svg)
+    return;
+
+  let area = svg.querySelector('.aqua-graph-area');
+  let line = svg.querySelector('.aqua-graph-line');
+  let hit = svg.querySelector('.aqua-graph-hit');
+  let guide = svg.querySelector('.aqua-graph-guide');
+  let handle = graph.querySelector(':scope > .aqua-graph-handle');
+
+  svg.querySelectorAll('.aqua-graph-handle').forEach(legacyHandle => legacyHandle.remove());
+
+  if (!area) {
+    area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    area.classList.add('aqua-graph-area');
+    svg.appendChild(area);
+  }
+
+  if (!line) {
+    line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    line.classList.add('aqua-graph-line');
+    svg.appendChild(line);
+  }
+
+  if (!hit) {
+    hit = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    hit.classList.add('aqua-graph-hit');
+    hit.setAttribute('x', '0');
+    hit.setAttribute('y', '0');
+    hit.setAttribute('width', '320');
+    hit.setAttribute('height', '132');
+    svg.appendChild(hit);
+  }
+
+  if (!guide) {
+    guide = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    guide.classList.add('aqua-graph-guide');
+    guide.setAttribute('y1', '0');
+    guide.setAttribute('y2', '132');
+    svg.appendChild(guide);
+  }
+
+  if (!handle) {
+    handle = document.createElement('span');
+    handle.classList.add('aqua-graph-handle');
+    graph.appendChild(handle);
+  }
+
+  const width = 320;
+  const height = 132;
+  const bottom = height;
+  const values = (graph.dataset.values || '66,22,66,110,66,22,66,110,66')
+    .split(',')
+    .map(value => Math.max(10, Math.min(height - 10, parseFloat(value))))
+    .filter(Number.isFinite);
+
+  if (values.length < 3)
+    values.splice(0, values.length, 66, 22, 66, 110, 66, 22, 66, 110, 66);
+
+  const points = values.map((y, index) => ({
+    x: (index / (values.length - 1)) * width,
+    y
+  }));
+
+  function pathFromPoints(points) {
+    const segments = [`M${points[0].x} ${points[0].y}`];
+
+    for (let index = 0; index < points.length - 1; index++) {
+      const previous = points[index - 1] || points[index];
+      const current = points[index];
+      const next = points[index + 1];
+      const afterNext = points[index + 2] || next;
+      const controlOneX = current.x + (next.x - previous.x) / 6;
+      const controlOneY = current.y + (next.y - previous.y) / 6;
+      const controlTwoX = next.x - (afterNext.x - current.x) / 6;
+      const controlTwoY = next.y - (afterNext.y - current.y) / 6;
+
+      segments.push(`C${controlOneX} ${controlOneY} ${controlTwoX} ${controlTwoY} ${next.x} ${next.y}`);
+    }
+
+    return segments.join(' ');
+  }
+
+  function render(activeIndex = Math.floor(points.length / 2)) {
+    const d = pathFromPoints(points);
+    line.setAttribute('d', d);
+    area.setAttribute('d', `${d} L${width} ${bottom} L0 ${bottom} Z`);
+    guide.setAttribute('x1', points[activeIndex].x);
+    guide.setAttribute('x2', points[activeIndex].x);
+    handle.style.left = `${(points[activeIndex].x / width) * 100}%`;
+    handle.style.top = `${(points[activeIndex].y / height) * 100}%`;
+    graph.dataset.values = points.map(point => Math.round(point.y)).join(',');
+    graph.setAttribute('aria-valuenow', String(Math.round(((height - points[activeIndex].y) / height) * 100)));
+  }
+
+  function pointerPoint(e) {
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(width, ((e.clientX - rect.left) / rect.width) * width)),
+      y: Math.max(10, Math.min(height - 10, ((e.clientY - rect.top) / rect.height) * height))
+    };
+  }
+
+  function updateFromPointer(e) {
+    const pointer = pointerPoint(e);
+    const nearestIndex = Math.round((pointer.x / width) * (points.length - 1));
+    keyboardIndex = nearestIndex;
+
+    points[nearestIndex].y = pointer.y;
+
+    const previous = points[nearestIndex - 1];
+    const next = points[nearestIndex + 1];
+    if (previous)
+      previous.y = previous.y * 0.82 + pointer.y * 0.18;
+    if (next)
+      next.y = next.y * 0.82 + pointer.y * 0.18;
+
+    render(nearestIndex);
+  }
+
+  let isDragging = false;
+  let keyboardIndex = Math.floor(points.length / 2);
+
+  graph.classList.add('is-interactive');
+  graph.setAttribute('tabindex', graph.getAttribute('tabindex') || '0');
+  graph.setAttribute('role', graph.getAttribute('role') || 'slider');
+  graph.setAttribute('aria-valuemin', '0');
+  graph.setAttribute('aria-valuemax', '100');
+
+  function onPointerDown(e) {
+    isDragging = true;
+    graph.classList.add('is-dragging');
+    graph.setPointerCapture(e.pointerId);
+    updateFromPointer(e);
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging)
+      return;
+
+    updateFromPointer(e);
+  }
+
+  function onPointerUp(e) {
+    if (!isDragging)
+      return;
+
+    isDragging = false;
+    graph.classList.remove('is-dragging');
+    if (graph.hasPointerCapture(e.pointerId))
+      graph.releasePointerCapture(e.pointerId);
+    updateFromPointer(e);
+  }
+
+  graph.addEventListener('pointerdown', onPointerDown);
+  graph.addEventListener('pointermove', onPointerMove);
+  graph.addEventListener('pointerup', onPointerUp);
+  graph.addEventListener('pointercancel', onPointerUp);
+
+  graph.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 12 : 6;
+
+    if (e.key === 'ArrowLeft') {
+      keyboardIndex = Math.max(0, keyboardIndex - 1);
+    } else if (e.key === 'ArrowRight') {
+      keyboardIndex = Math.min(points.length - 1, keyboardIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      points[keyboardIndex].y = Math.max(10, points[keyboardIndex].y - step);
+    } else if (e.key === 'ArrowDown') {
+      points[keyboardIndex].y = Math.min(height - 10, points[keyboardIndex].y + step);
+    } else {
+      return;
+    }
+
+    render(keyboardIndex);
+    e.preventDefault();
+  });
+
+  render();
 });
 
 function aquaProgressIndicator(progressIndicator) {
