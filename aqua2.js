@@ -2537,6 +2537,20 @@ function aquaTabView(tabView) {
       pane.classList.add('active');
   }
 
+  function trackPaneHeight(nextPane) {
+    const update = () => {
+      if (!paneContainer?.classList.contains("height-animating")) return;
+      paneContainer.style.height = `${measurePaneHeight(nextPane)}px`;
+    };
+
+    const observer = new ResizeObserver(() => requestAnimationFrame(update));
+    observer.observe(nextPane);
+
+    requestAnimationFrame(() => requestAnimationFrame(update));
+
+    return () => observer.disconnect();
+  }
+
   function animatePaneTransition(prevPane, nextPane, forward, targetTab, onDone) {
     const animationId = paneAnimationId;
     animatingToTab = targetTab;
@@ -2556,6 +2570,8 @@ function aquaTabView(tabView) {
     const fromHeight = Math.max(paneContainer.getBoundingClientRect().height, prevPane.offsetHeight, 1);
     beginHeightTransition(targetHeight, fromHeight);
 
+    const untrackHeight = trackPaneHeight(nextPane);
+
     paneContainer.classList.add('is-animating');
 
     clearPaneMotionClasses(prevPane);
@@ -2572,6 +2588,8 @@ function aquaTabView(tabView) {
     const finish = () => {
       if (finished || animationId !== paneAnimationId)
         return;
+
+      untrackHeight?.();
 
       finished = true;
       paneFinishTimer = null;
@@ -2617,6 +2635,24 @@ function aquaTabView(tabView) {
 
     setPanesInstant(prevTab);
     setTabHeaders(tab);
+
+    const sharedContentId = tabView.getAttribute('data-shared-pane-content');
+    if (sharedContentId && nextPane) {
+      const sharedElement = document.getElementById(sharedContentId);
+      if (sharedElement && sharedElement.parentNode !== nextPane) {
+        nextPane.appendChild(sharedElement);
+      }
+    }
+
+    tabView.dispatchEvent(new CustomEvent("aqua:tabview:beforechange", {
+      detail: {
+        previousTab: prevTab,
+        nextTab: tab,
+        previousPane: prevPane,
+        nextPane,
+        direction: forward ? "forward" : "backward"
+      }
+    }));
 
     const canAnimate = !skipAnimation
       && paneContainer
