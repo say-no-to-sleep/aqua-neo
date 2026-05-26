@@ -2213,6 +2213,10 @@
   height: auto !important;
 }
 
+.aqua-tabview-shared-pane-clone {
+  pointer-events: none !important;
+}
+
 .aqua-tabview-panes > .tab-pane {
   display: none;
 }
@@ -2335,6 +2339,7 @@
 
 function aquaTabView(tabView) {
   const prefix = tabView.dataset.contentPrefix;
+  const sharedContentId = tabView.getAttribute('data-shared-pane-content');
   const tabIndicator = tabView.querySelector('.aqua-tabview-indicator');
   const activeTabs = Array.from(tabView.querySelectorAll('.aqua-tabview-tab:not(.disabled)'));
   const allTabs = Array.from(tabView.querySelectorAll('.aqua-tabview-tab'));
@@ -2373,6 +2378,8 @@ function aquaTabView(tabView) {
   let paneAnimationId = 0;
   let heightReleaseId = 0;
   let paneFinishTimer = null;
+  let paneHeightTrackerCleanup = null;
+  let sharedPaneClone = null;
 
   const paneMotionClasses = [
     'tab-pane-out',
@@ -2396,6 +2403,8 @@ function aquaTabView(tabView) {
   function abortPaneAnimations() {
     paneAnimationId++;
     heightReleaseId++;
+    stopTrackingPaneHeight();
+    clearSharedPaneClone();
 
     if (paneFinishTimer) {
       clearTimeout(paneFinishTimer);
@@ -2408,6 +2417,7 @@ function aquaTabView(tabView) {
       return;
 
     paneContainer.classList.remove('is-animating');
+    clearSharedPaneClone();
 
     allTabs.forEach(t => {
       const pane = getPane(t);
@@ -2435,6 +2445,21 @@ function aquaTabView(tabView) {
     const height = clone.scrollHeight;
     clone.remove();
     return Math.max(height, 1);
+  }
+
+  function measurePaneTargetHeight(pane) {
+    const measuredHeight = measurePaneHeight(pane);
+    const sharedElement = sharedContentId ? document.getElementById(sharedContentId) : null;
+
+    if (!pane || !sharedElement || !pane.contains(sharedElement))
+      return measuredHeight;
+
+    return Math.max(
+      measuredHeight,
+      sharedElement.offsetTop + sharedElement.scrollHeight,
+      sharedElement.offsetTop + sharedElement.offsetHeight,
+      1
+    );
   }
 
   function beginHeightTransition(targetHeight, fallbackFrom = 0) {
@@ -2469,7 +2494,13 @@ function aquaTabView(tabView) {
       if (releaseId !== heightReleaseId)
         return;
 
-      const lockedHeight = Math.max(paneContainer.scrollHeight, 1);
+      const activePane = paneContainer.querySelector(':scope > .tab-pane.active')
+        || paneContainer.querySelector(':scope > .tab-pane.tab-pane-in');
+      const lockedHeight = Math.max(
+        paneContainer.scrollHeight,
+        measurePaneTargetHeight(activePane),
+        1
+      );
       paneContainer.style.height = `${lockedHeight}px`;
 
       requestAnimationFrame(() => {
@@ -2540,15 +2571,64 @@ function aquaTabView(tabView) {
   function trackPaneHeight(nextPane) {
     const update = () => {
       if (!paneContainer?.classList.contains("height-animating")) return;
-      paneContainer.style.height = `${measurePaneHeight(nextPane)}px`;
+      paneContainer.style.height = `${Math.max(
+        measurePaneTargetHeight(nextPane),
+        nextPane?.scrollHeight || 0,
+        nextPane?.offsetHeight || 0,
+        1
+      )}px`;
     };
 
     const observer = new ResizeObserver(() => requestAnimationFrame(update));
     observer.observe(nextPane);
 
     requestAnimationFrame(() => requestAnimationFrame(update));
+    setTimeout(update, 40);
+    setTimeout(update, paneDuration / 2);
 
     return () => observer.disconnect();
+  }
+
+  function stopTrackingPaneHeight() {
+    if (!paneHeightTrackerCleanup)
+      return;
+
+    paneHeightTrackerCleanup();
+    paneHeightTrackerCleanup = null;
+  }
+
+  function stripSharedCloneIds(node) {
+    node.removeAttribute('id');
+    node.querySelectorAll('[id]').forEach(child => child.removeAttribute('id'));
+  }
+
+  function clearSharedPaneClone() {
+    if (!sharedPaneClone)
+      return;
+
+    sharedPaneClone.remove();
+    sharedPaneClone = null;
+  }
+
+  function moveSharedPaneContent(prevPane, nextPane) {
+    if (!sharedContentId || !prevPane || !nextPane)
+      return;
+
+    const sharedElement = document.getElementById(sharedContentId);
+    if (!sharedElement || sharedElement.parentNode === nextPane)
+      return;
+
+    clearSharedPaneClone();
+
+    if (prevPane.contains(sharedElement)) {
+      sharedPaneClone = sharedElement.cloneNode(true);
+      stripSharedCloneIds(sharedPaneClone);
+      sharedPaneClone.classList.add('aqua-tabview-shared-pane-clone');
+      sharedPaneClone.setAttribute('aria-hidden', 'true');
+      prevPane.appendChild(sharedPaneClone);
+    }
+
+    nextPane.appendChild(sharedElement);
   }
 
   function animatePaneTransition(prevPane, nextPane, forward, targetTab, onDone) {
@@ -2566,11 +2646,12 @@ function aquaTabView(tabView) {
       clearPaneMotionClasses(pane);
     });
 
-    const targetHeight = measurePaneHeight(nextPane);
+    const targetHeight = measurePaneTargetHeight(nextPane);
     const fromHeight = Math.max(paneContainer.getBoundingClientRect().height, prevPane.offsetHeight, 1);
     beginHeightTransition(targetHeight, fromHeight);
 
-    const untrackHeight = trackPaneHeight(nextPane);
+    stopTrackingPaneHeight();
+    paneHeightTrackerCleanup = trackPaneHeight(nextPane);
 
     paneContainer.classList.add('is-animating');
 
@@ -2589,7 +2670,7 @@ function aquaTabView(tabView) {
       if (finished || animationId !== paneAnimationId)
         return;
 
-      untrackHeight?.();
+      stopTrackingPaneHeight();
 
       finished = true;
       paneFinishTimer = null;
@@ -2597,6 +2678,7 @@ function aquaTabView(tabView) {
 
       setPanesInstant(targetTab);
       paneContainer.classList.remove('is-animating');
+      clearSharedPaneClone();
       committedTab = targetTab;
 
       requestAnimationFrame(() => {
@@ -2636,13 +2718,7 @@ function aquaTabView(tabView) {
     setPanesInstant(prevTab);
     setTabHeaders(tab);
 
-    const sharedContentId = tabView.getAttribute('data-shared-pane-content');
-    if (sharedContentId && nextPane) {
-      const sharedElement = document.getElementById(sharedContentId);
-      if (sharedElement && sharedElement.parentNode !== nextPane) {
-        nextPane.appendChild(sharedElement);
-      }
-    }
+    moveSharedPaneContent(prevPane, nextPane);
 
     tabView.dispatchEvent(new CustomEvent("aqua:tabview:beforechange", {
       detail: {
@@ -2673,7 +2749,7 @@ function aquaTabView(tabView) {
 
     if (!skipAnimation && paneContainer && nextPane && !prefersReducedMotion()) {
       const fromHeight = Math.max(paneContainer.getBoundingClientRect().height, prevPane?.offsetHeight || 0, 1);
-      beginHeightTransition(measurePaneHeight(nextPane), fromHeight);
+      beginHeightTransition(measurePaneTargetHeight(nextPane), fromHeight);
       setPanesInstant(tab);
       committedTab = tab;
       animatingToTab = null;
