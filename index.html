@@ -305,6 +305,53 @@
       margin-bottom: 6px;
     }
 
+    .viz-lab {
+      display: grid;
+      gap: 16px;
+    }
+
+    .viz-stage-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .viz-bars {
+      display: flex;
+      align-items: end;
+      gap: 9px;
+      height: 170px;
+      padding: 10px 4px 0;
+    }
+
+    .viz-bars .aqua-mark {
+      flex: 1 1 0;
+      min-width: 12px;
+    }
+
+    .viz-node-stage svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .viz-controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .viz-toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 760px) {
+      .viz-stage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
   /* —— Media player —— */
     .player {
       display: flex;
@@ -791,6 +838,141 @@
                 </div>
               </div>
 
+              <div class="card" style="grid-column:1 / -1">
+                <p class="section-title">Visualization Stage</p>
+                <div class="viz-lab" id="viz-stage-lab">
+                  <div class="viz-stage-grid">
+                    <div>
+                      <p style="margin:0 0 8px;font-size:12px;opacity:0.75">Bars (`graphite-stage` + `aqua-mark-bar`)</p>
+                      <div id="viz-bar-stage" class="graphite-stage" data-stage-grid="horizontal" data-stage-padding="compact" aria-label="Tunable glossy bar stage">
+                        <div class="viz-bars">
+                          <div class="aqua-mark aqua-mark-bar" style="height:42%"></div>
+                          <div class="aqua-mark aqua-mark-bar is-visited viz-state-visited" style="height:68%"></div>
+                          <div class="aqua-mark aqua-mark-bar is-current viz-state-current" style="height:86%"></div>
+                          <div class="aqua-mark aqua-mark-bar is-candidate viz-state-candidate" style="height:55%"></div>
+                          <div class="aqua-mark aqua-mark-bar is-success viz-state-success" style="height:74%"></div>
+                          <div class="aqua-mark aqua-mark-bar is-active viz-state-active" style="height:92%"></div>
+                          <div class="aqua-mark aqua-mark-bar" style="height:35%"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <p style="margin:0 0 8px;font-size:12px;opacity:0.75">Node-link (`graphite-stage` + SVG marks)</p>
+                      <div id="viz-node-stage" class="graphite-stage viz-node-stage" data-stage-grid="none" data-stage-padding="compact" aria-label="Tunable glossy node-link stage">
+                        <svg viewBox="0 0 360 190" role="img" aria-label="Sample traversal graph">
+                          <line class="graphite-svg-edge" x1="76" y1="96" x2="164" y2="48" />
+                          <line class="graphite-svg-edge" x1="164" y1="48" x2="260" y2="96" />
+                          <line class="graphite-svg-edge" x1="76" y1="96" x2="164" y2="148" />
+                          <line class="graphite-svg-edge" x1="164" y1="148" x2="260" y2="96" />
+                          <line class="graphite-svg-edge" x1="260" y1="96" x2="296" y2="148" />
+                          <circle class="aqua-svg-node viz-state-visited is-visited" cx="76" cy="96" r="23" />
+                          <ellipse class="aqua-svg-highlight" cx="76" cy="83" rx="15" ry="5.5" />
+                          <circle class="aqua-svg-node viz-state-current is-current" cx="164" cy="48" r="23" />
+                          <ellipse class="aqua-svg-highlight" cx="164" cy="35" rx="15" ry="5.5" />
+                          <circle class="aqua-svg-node viz-state-candidate is-candidate" cx="260" cy="96" r="23" />
+                          <ellipse class="aqua-svg-highlight" cx="260" cy="83" rx="15" ry="5.5" />
+                          <circle class="aqua-svg-node" cx="164" cy="148" r="23" />
+                          <ellipse class="aqua-svg-highlight" cx="164" cy="135" rx="15" ry="5.5" />
+                          <circle class="aqua-svg-node viz-state-success is-success" cx="296" cy="148" r="23" />
+                          <ellipse class="aqua-svg-highlight" cx="296" cy="135" rx="15" ry="5.5" />
+                          <text class="aqua-svg-label" x="76" y="101" text-anchor="middle">A</text>
+                          <text class="aqua-svg-label" x="164" y="53" text-anchor="middle">B</text>
+                          <text class="aqua-svg-label" x="260" y="101" text-anchor="middle">C</text>
+                          <text class="aqua-svg-label" x="164" y="153" text-anchor="middle">D</text>
+                          <text class="aqua-svg-label" x="296" y="153" text-anchor="middle">E</text>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="viz-controls">
+                    <div class="control-row">
+                      <span style="font-size:13px;color:var(--aqua-foreground-muted)">Accent</span>
+                      <div class="aqua-text-button-group" role="group" aria-label="Visualization accent">
+                        <button type="button" class="aqua-text-button" data-viz-accent="#0071e3" aria-pressed="true">Aqua</button>
+                        <button type="button" class="aqua-text-button" data-viz-accent="#7f91c9" aria-pressed="false">Periwinkle</button>
+                        <button type="button" class="aqua-text-button" data-viz-accent="#4da6b6" aria-pressed="false">Teal</button>
+                        <button type="button" class="aqua-text-button" data-viz-accent="#d39b2d" aria-pressed="false">Gold</button>
+                      </div>
+                    </div>
+                    <div class="control-row">
+                      <div style="min-width:180px;flex:1">
+                        <div class="slider-label">
+                          <span>Gloss / depth</span>
+                          <output id="viz-depth-out">100</output>
+                        </div>
+                        <div class="aqua-slider graphite-slider" id="viz-depth-slider" data-min="40" data-max="160" data-value="100">
+                          <div class="aqua-slider-track">
+                            <div class="aqua-slider-fill"></div>
+                            <div class="aqua-slider-thumb"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="min-width:180px;flex:1">
+                        <div class="slider-label">
+                          <span>Mark radius</span>
+                          <output id="viz-radius-out">10</output>
+                        </div>
+                        <div class="aqua-slider" id="viz-radius-slider" data-min="2" data-max="18" data-value="10">
+                          <div class="aqua-slider-track">
+                            <div class="aqua-slider-fill"></div>
+                            <div class="aqua-slider-thumb"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="min-width:180px;flex:1">
+                        <span style="display:block;font-size:13px;margin-bottom:4px">Grid mode</span>
+                        <div class="aqua-select graphite-select" id="viz-grid-select">
+                          <div class="aqua-select-trigger">
+                            <div class="aqua-select-value-wrap">
+                              <span class="aqua-select-value selected">Horizontal</span>
+                            </div>
+                            <div class="aqua-select-cap">
+                              <svg viewBox="0 0 13 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M6.5 14L1 8.5M6.5 14L12 8.5M6.5 4V14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </div>
+                          </div>
+                          <div class="aqua-select-panel" role="listbox">
+                            <div class="aqua-select-option" data-value="none" role="option">None</div>
+                            <div class="aqua-select-option chosen" data-value="horizontal" role="option">Horizontal</div>
+                            <div class="aqua-select-option" data-value="vertical" role="option">Vertical</div>
+                            <div class="aqua-select-option" data-value="both" role="option">Both</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="viz-toggle-row" aria-label="Visualization state toggles">
+                      <label class="graphite-checkbox-chip">
+                        <input type="checkbox" data-viz-state-toggle="active" checked>
+                        <span class="aqua-checkbox-control"><span class="aqua-checkbox-left"></span><span class="aqua-checkbox-right"></span></span>
+                        <span class="aqua-checkbox-label">Active</span>
+                      </label>
+                      <label class="graphite-checkbox-chip">
+                        <input type="checkbox" data-viz-state-toggle="current" checked>
+                        <span class="aqua-checkbox-control"><span class="aqua-checkbox-left"></span><span class="aqua-checkbox-right"></span></span>
+                        <span class="aqua-checkbox-label">Current</span>
+                      </label>
+                      <label class="graphite-checkbox-chip">
+                        <input type="checkbox" data-viz-state-toggle="candidate" checked>
+                        <span class="aqua-checkbox-control"><span class="aqua-checkbox-left"></span><span class="aqua-checkbox-right"></span></span>
+                        <span class="aqua-checkbox-label">Candidate</span>
+                      </label>
+                      <label class="graphite-checkbox-chip">
+                        <input type="checkbox" data-viz-state-toggle="success" checked>
+                        <span class="aqua-checkbox-control"><span class="aqua-checkbox-left"></span><span class="aqua-checkbox-right"></span></span>
+                        <span class="aqua-checkbox-label">Success</span>
+                      </label>
+                      <label class="graphite-checkbox-chip">
+                        <input type="checkbox" data-viz-state-toggle="visited" checked>
+                        <span class="aqua-checkbox-control"><span class="aqua-checkbox-left"></span><span class="aqua-checkbox-right"></span></span>
+                        <span class="aqua-checkbox-label">Visited</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="card">
                 <p class="section-title">Code Block</p>
                 <div class="aqua-code-block">
@@ -1069,6 +1251,63 @@
       containerIntensitySlider.addEventListener("pointerup", syncContainerIntensity);
       syncContainerIntensity();
     }
+
+    const vizLab = document.getElementById("viz-stage-lab");
+    const vizStages = Array.from(document.querySelectorAll("#viz-bar-stage, #viz-node-stage"));
+    const vizDepthSlider = document.getElementById("viz-depth-slider");
+    const vizDepthOut = document.getElementById("viz-depth-out");
+    const vizRadiusSlider = document.getElementById("viz-radius-slider");
+    const vizRadiusOut = document.getElementById("viz-radius-out");
+
+    function syncVizDepth() {
+      if (!vizLab || !vizDepthSlider) return;
+      const value = Number(vizDepthSlider.dataset.value || 100);
+      vizLab.style.setProperty("--aqua-mark-depth", (value / 100).toFixed(2));
+      vizLab.style.setProperty("--aqua-mark-gloss", (0.24 + value / 320).toFixed(2));
+      if (vizDepthOut) vizDepthOut.textContent = String(value);
+    }
+
+    function syncVizRadius() {
+      if (!vizLab || !vizRadiusSlider) return;
+      const value = Number(vizRadiusSlider.dataset.value || 10);
+      vizLab.style.setProperty("--aqua-mark-radius", value + "px");
+      if (vizRadiusOut) vizRadiusOut.textContent = String(value);
+    }
+
+    if (vizDepthSlider) {
+      new MutationObserver(syncVizDepth).observe(vizDepthSlider, { attributes: true, attributeFilter: ["data-value"] });
+      syncVizDepth();
+    }
+
+    if (vizRadiusSlider) {
+      new MutationObserver(syncVizRadius).observe(vizRadiusSlider, { attributes: true, attributeFilter: ["data-value"] });
+      syncVizRadius();
+    }
+
+    document.querySelectorAll("[data-viz-accent]").forEach(button => {
+      button.addEventListener("click", () => {
+        const accent = button.dataset.vizAccent || "#0071e3";
+        vizStages.forEach(stage => stage.style.setProperty("--aqua-stage-accent", accent));
+      });
+    });
+
+    document.querySelectorAll("#viz-grid-select .aqua-select-option").forEach(option => {
+      option.addEventListener("click", () => {
+        const grid = option.dataset.value || "horizontal";
+        vizStages.forEach(stage => stage.dataset.stageGrid = grid);
+      });
+    });
+
+    document.querySelectorAll("[data-viz-state-toggle]").forEach(input => {
+      const syncState = () => {
+        const state = input.dataset.vizStateToggle;
+        document.querySelectorAll(".viz-state-" + state).forEach(mark => {
+          mark.classList.toggle("is-" + state, input.checked);
+        });
+      };
+      input.addEventListener("change", syncState);
+      syncState();
+    });
 
     const volumeSlider = document.getElementById("volume-slider");
     const volumeOut = document.getElementById("volume-out");

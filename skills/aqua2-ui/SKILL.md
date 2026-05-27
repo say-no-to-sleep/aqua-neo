@@ -204,6 +204,45 @@ it independently.
 
 ---
 
+## Visualization Stage & Marks
+
+Use stages when a tool owns the drawing logic but wants Aqua2's glossy visualization material.
+Stages do **not** understand bars, nodes, edges, heaps, or algorithms; they provide the surface and
+mark styling only.
+
+```html
+<div class="graphite-stage" data-stage-grid="horizontal" data-stage-padding="compact">
+  <div class="aqua-mark aqua-mark-bar" style="height: 64%"></div>
+  <div class="aqua-mark aqua-mark-bar is-current" style="height: 82%"></div>
+</div>
+
+<div class="graphite-stage" data-stage-grid="none" data-stage-padding="compact">
+  <svg viewBox="0 0 320 160">
+    <line class="graphite-svg-edge is-candidate" x1="72" y1="80" x2="160" y2="42"></line>
+    <circle class="aqua-svg-node is-current" cx="72" cy="80" r="22"></circle>
+    <ellipse class="aqua-svg-highlight" cx="72" cy="67" rx="15" ry="5.5"></ellipse>
+    <circle class="aqua-svg-node is-candidate" cx="160" cy="42" r="22"></circle>
+    <ellipse class="aqua-svg-highlight" cx="160" cy="29" rx="15" ry="5.5"></ellipse>
+    <text class="aqua-svg-label" x="72" y="85" text-anchor="middle">A</text>
+  </svg>
+</div>
+```
+
+- Surface classes: `.aqua-stage` / `.graphite-stage`
+- Grid modes: `data-stage-grid="none | horizontal | vertical | both"`
+- Padding modes: `data-stage-padding="none | compact | comfortable"`
+- Fit modes: `data-stage-fit="contain | fill"` for direct child `<svg>` / `<canvas>`
+- HTML marks: `.aqua-mark` / `.graphite-mark`
+- HTML shape modifiers: `.aqua-mark-bar`, `.aqua-mark-node`, `.aqua-mark-pill`, `.aqua-mark-card`
+- SVG marks: `.aqua-svg-node` / `.graphite-svg-node`, `.aqua-svg-edge` / `.graphite-svg-edge`, `.aqua-svg-label`, `.aqua-svg-glow`, `.aqua-svg-highlight` / `.graphite-svg-highlight`
+- Shared mark state classes: `.is-active`, `.is-current`, `.is-candidate`, `.is-selected`, `.is-success`, `.is-warning`, `.is-danger`, `.is-muted`, `.is-ghost`, `.is-visited`
+- Tunable variables: `--aqua-stage-accent`, `--aqua-mark-color`, `--aqua-mark-radius`, `--aqua-mark-depth`, `--aqua-mark-gloss`
+- For per-mark colors, set `--aqua-mark-color` inline or on a domain-specific class rather than overriding `fill` / `background` directly
+- For SVG marks, prefer CSS variables plus Aqua2 classes; leave geometry attributes such as `x`, `y`, `r`, `d`, `width`, and `height` to the tool
+- SVG elements cannot use CSS background gradients, so add a small `.aqua-svg-highlight` / `.graphite-svg-highlight` ellipse or path above a node when it needs button-like gloss
+
+---
+
 ## Tooltip
 
 ```html
@@ -585,6 +624,8 @@ palettes.
 | Floating control panel | `aqua-floating-control-panel` / `graphite-floating-control-panel` | Auto |
 | Graph (static) | `aqua-graph` / `graphite-graph` with `.aqua-graph-line` | No |
 | Graph (interactive) | `aqua-graph aqua-interactive-graph` / `graphite-graph graphite-interactive-graph` | Auto |
+| Visualization stage | `aqua-stage` / `graphite-stage` | No |
+| Visualization marks | `aqua-mark` / `graphite-mark`, `aqua-svg-node`, `aqua-svg-edge`, `aqua-svg-label`, `aqua-svg-highlight` | No |
 | Tooltip | Any trigger with `data-aqua-tooltip` (`graphite-tooltip-source` for graphite style) | Auto |
 | Code block | `aqua-code-block` / `graphite-code-block` with `.aqua-code-line` | No |
 | Text button group | `aqua-text-button-group` with `aqua-text-button` / `graphite-text-button` | Auto |

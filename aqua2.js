@@ -17,6 +17,11 @@
   --aqua-surface-radius:           25px;
   --aqua-container-nested-inset:   14px;
   --aqua-floating-panel-nested-inset: 12px;
+  --aqua-stage-accent:       var(--aqua-color);
+  --aqua-mark-color:         var(--aqua-stage-accent);
+  --aqua-mark-radius:        10px;
+  --aqua-mark-depth:         1;
+  --aqua-mark-gloss:         0.46;
 }
 
 [data-theme="dark"] {
@@ -337,6 +342,386 @@
 .graphite-container:has(.graphite-container .aqua-graph),
 .graphite-container:has(.graphite-container .graphite-graph) {
   border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset) * 2);
+}
+
+.aqua-container:has(.aqua-stage),
+.aqua-container:has(.graphite-stage),
+.graphite-container:has(.aqua-stage),
+.graphite-container:has(.graphite-stage) {
+  border-radius: calc(var(--aqua-surface-radius) + var(--aqua-container-nested-inset));
+}
+
+.aqua-container .aqua-stage,
+.aqua-container .graphite-stage,
+.graphite-container .aqua-stage,
+.graphite-container .graphite-stage {
+  border-radius: var(--aqua-surface-radius);
+}
+
+.aqua-stage, .graphite-stage {
+  --aqua-stage-accent: var(--aqua-color);
+  --aqua-stage-grid-line: rgba(29,29,31,0.10);
+  --aqua-stage-padding-value: 16px;
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 132px;
+  padding: var(--aqua-stage-padding-value);
+  border-radius: var(--aqua-surface-radius);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 78%, rgba(255,255,255,0.40));
+  background: rgba(255,255,255,0.18);
+  background:
+    var(--aqua-stage-grid-horizontal, repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      var(--aqua-stage-grid-line) 31px,
+      transparent 32px
+    )),
+    var(--aqua-stage-grid-vertical, none),
+    linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--aqua-stage-accent) 4%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.42), 0 8px 22px rgba(0,0,0,0.10);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  color: var(--aqua-foreground);
+}
+
+.graphite-stage {
+  --aqua-stage-accent: var(--graphite-color);
+  background:
+    var(--aqua-stage-grid-horizontal, repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      var(--aqua-stage-grid-line) 31px,
+      transparent 32px
+    )),
+    var(--aqua-stage-grid-vertical, none),
+    linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 100%),
+    color-mix(in srgb, var(--aqua-stage-accent) 6%, transparent);
+}
+
+.aqua-stage[data-stage-grid="none"],
+.graphite-stage[data-stage-grid="none"] {
+  --aqua-stage-grid-horizontal: none;
+  --aqua-stage-grid-vertical: none;
+}
+
+.aqua-stage[data-stage-grid="vertical"],
+.graphite-stage[data-stage-grid="vertical"] {
+  --aqua-stage-grid-horizontal: none;
+  --aqua-stage-grid-vertical: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 30px,
+    var(--aqua-stage-grid-line) 31px,
+    transparent 32px
+  );
+}
+
+.aqua-stage[data-stage-grid="both"],
+.graphite-stage[data-stage-grid="both"] {
+  --aqua-stage-grid-vertical: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 30px,
+    var(--aqua-stage-grid-line) 31px,
+    transparent 32px
+  );
+}
+
+.aqua-stage[data-stage-padding="none"],
+.graphite-stage[data-stage-padding="none"] {
+  --aqua-stage-padding-value: 0;
+}
+
+.aqua-stage[data-stage-padding="compact"],
+.graphite-stage[data-stage-padding="compact"] {
+  --aqua-stage-padding-value: 8px;
+}
+
+.aqua-stage[data-stage-padding="comfortable"],
+.graphite-stage[data-stage-padding="comfortable"] {
+  --aqua-stage-padding-value: 18px;
+}
+
+.aqua-stage[data-stage-fit="fill"] > svg,
+.aqua-stage[data-stage-fit="fill"] > canvas,
+.graphite-stage[data-stage-fit="fill"] > svg,
+.graphite-stage[data-stage-fit="fill"] > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.aqua-stage[data-stage-fit="contain"] > svg,
+.aqua-stage[data-stage-fit="contain"] > canvas,
+.graphite-stage[data-stage-fit="contain"] > svg,
+.graphite-stage[data-stage-fit="contain"] > canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.aqua-mark, .graphite-mark {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--aqua-color));
+  --aqua-mark-stroke: rgba(18,44,62,0.24);
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--aqua-mark-radius);
+  border: 1px solid var(--aqua-mark-stroke);
+  background-color: var(--aqua-mark-color);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% 12%, rgba(255,255,255,calc(var(--aqua-mark-gloss) * 0.72)) 0%, transparent 72%),
+    linear-gradient(to bottom, rgba(255,255,255,var(--aqua-mark-gloss)) 0%, rgba(255,255,255,0.08) 46%, rgba(0,0,0,0.05) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.62),
+    inset 0 -1px 0 rgba(0,0,0,0.12),
+    0 calc(2px * var(--aqua-mark-depth)) calc(6px * var(--aqua-mark-depth)) rgba(0,0,0,0.16);
+  transition: transform 0.16s ease, opacity 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.aqua-mark::after, .graphite-mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.14) 50%, transparent 62%);
+  opacity: calc(var(--aqua-mark-gloss) * 0.55);
+  pointer-events: none;
+}
+
+.graphite-mark {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--graphite-color));
+}
+
+.aqua-mark-bar {
+  min-width: 8px;
+  min-height: 8px;
+  align-self: end;
+  border-radius: min(var(--aqua-mark-radius), 18px) min(var(--aqua-mark-radius), 18px) 4px 4px;
+  border-bottom-color: rgba(0,0,0,0.28);
+  background-color: color-mix(in srgb, var(--aqua-mark-color) 74%, transparent);
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.05) 45%, transparent 100%),
+    linear-gradient(to right, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.14) 14%, transparent 50%, rgba(0,0,0,0.18) 85%, rgba(255,255,255,0.06) 100%);
+  backdrop-filter: blur(6px) saturate(130%);
+  -webkit-backdrop-filter: blur(6px) saturate(130%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.68),
+    inset 1px 0 0 rgba(255,255,255,0.22),
+    inset -1px 0 0 rgba(0,0,0,0.12),
+    inset 0 -2px 1px rgba(0,0,0,0.18),
+    0 calc(2px * var(--aqua-mark-depth)) calc(6px * var(--aqua-mark-depth)) rgba(0,0,0,0.18);
+}
+
+.aqua-mark-bar::after {
+  top: 2px;
+  left: 8%;
+  right: 18%;
+  bottom: 30%;
+  inset: auto;
+  border-radius: min(var(--aqua-mark-radius), 15px) min(var(--aqua-mark-radius), 15px) 2px 2px;
+  background: radial-gradient(ellipse 75% 65% at 38% 18%, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.14) 55%, transparent 100%);
+  opacity: calc(var(--aqua-mark-gloss) * 0.90);
+}
+
+.aqua-mark-node {
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: 999px;
+  border-bottom-color: rgba(0,0,0,0.20);
+  background-color: color-mix(in srgb, var(--aqua-mark-color) 70%, transparent);
+  background-image:
+    radial-gradient(circle 38% at 36% 26%, rgba(255,255,255,calc(var(--aqua-mark-gloss) * 0.98)) 0%, rgba(255,255,255,calc(var(--aqua-mark-gloss) * 0.20)) 50%, transparent 75%),
+    radial-gradient(ellipse 70% 45% at 44% 12%, rgba(255,255,255,calc(var(--aqua-mark-gloss) * 0.55)) 0%, transparent 100%),
+    radial-gradient(ellipse 110% 80% at 50% 108%, rgba(0,0,0,0.22) 0%, transparent 52%),
+    linear-gradient(155deg, rgba(255,255,255,calc(var(--aqua-mark-gloss) * 0.22)) 0%, transparent 48%, rgba(0,0,0,0.08) 100%);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    inset 1px 0 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.16),
+    0 calc(2px * var(--aqua-mark-depth)) calc(8px * var(--aqua-mark-depth)) rgba(0,0,0,0.20);
+}
+
+.aqua-mark-node::after {
+  inset: auto;
+  top: 4px;
+  left: 12%;
+  right: 32%;
+  height: 35%;
+  border-radius: 999px;
+  background: radial-gradient(ellipse 100% 100% at 44% 36%, rgba(255,255,255,0.60) 0%, rgba(255,255,255,0.24) 60%, transparent 100%);
+  opacity: calc(var(--aqua-mark-gloss) * 0.92);
+}
+
+.aqua-mark-pill {
+  min-height: 28px;
+  border-radius: 999px;
+}
+
+.aqua-mark-card {
+  min-height: 34px;
+}
+
+.aqua-mark.is-active,
+.graphite-mark.is-active,
+.aqua-mark.is-current,
+.graphite-mark.is-current,
+.aqua-mark.is-selected,
+.graphite-mark.is-selected {
+  --aqua-mark-color: var(--aqua-color);
+  filter: saturate(1.08) brightness(1.03);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.68),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 calc(3px * var(--aqua-mark-depth)) calc(10px * var(--aqua-mark-depth)) color-mix(in srgb, var(--aqua-mark-color) 36%, transparent),
+    0 0 calc(10px * var(--aqua-mark-depth)) color-mix(in srgb, var(--aqua-mark-color) 28%, transparent);
+}
+
+.aqua-svg-node.is-active,
+.graphite-svg-node.is-active,
+.aqua-svg-node.is-current,
+.graphite-svg-node.is-current,
+.aqua-svg-node.is-selected,
+.graphite-svg-node.is-selected {
+  --aqua-mark-color: var(--aqua-color);
+  filter: url(#aqua-node-glass-filter-active) brightness(1.02);
+}
+
+.aqua-mark.is-candidate, .graphite-mark.is-candidate,
+.aqua-svg-node.is-candidate, .graphite-svg-node.is-candidate,
+.aqua-svg-edge.is-candidate, .graphite-svg-edge.is-candidate {
+  --aqua-mark-color: #d7ab5f;
+}
+
+.aqua-mark.is-success, .graphite-mark.is-success,
+.aqua-svg-node.is-success, .graphite-svg-node.is-success,
+.aqua-svg-edge.is-success, .graphite-svg-edge.is-success {
+  --aqua-mark-color: #67a875;
+}
+
+.aqua-mark.is-warning, .graphite-mark.is-warning,
+.aqua-svg-node.is-warning, .graphite-svg-node.is-warning,
+.aqua-svg-edge.is-warning, .graphite-svg-edge.is-warning {
+  --aqua-mark-color: #d39b2d;
+}
+
+.aqua-mark.is-danger, .graphite-mark.is-danger,
+.aqua-svg-node.is-danger, .graphite-svg-node.is-danger,
+.aqua-svg-edge.is-danger, .graphite-svg-edge.is-danger {
+  --aqua-mark-color: #c76166;
+}
+
+.aqua-mark.is-muted, .graphite-mark.is-muted,
+.aqua-mark.is-ghost, .graphite-mark.is-ghost,
+.aqua-svg-node.is-muted, .graphite-svg-node.is-muted,
+.aqua-svg-node.is-ghost, .graphite-svg-node.is-ghost,
+.aqua-svg-edge.is-muted, .graphite-svg-edge.is-muted,
+.aqua-svg-edge.is-ghost, .graphite-svg-edge.is-ghost {
+  opacity: 0.42;
+}
+
+.aqua-mark.is-visited, .graphite-mark.is-visited,
+.aqua-svg-node.is-visited, .graphite-svg-node.is-visited {
+  --aqua-mark-color: #8fa9bb;
+}
+
+.aqua-svg-node, .graphite-svg-node {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--aqua-color));
+  --aqua-mark-stroke: rgba(255,255,255,0.85);
+  color: var(--aqua-mark-color);
+  fill: url(#aqua-mark-node-face);
+  stroke: color-mix(in srgb, var(--aqua-mark-stroke) 78%, var(--aqua-border));
+  stroke-width: var(--aqua-mark-stroke-width, 1.8);
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+  filter: url(#aqua-node-glass-filter);
+  transition: color 0.16s ease, stroke 0.16s ease, opacity 0.16s ease, filter 0.16s ease;
+}
+
+.graphite-svg-node {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--graphite-color));
+}
+
+.aqua-svg-edge, .graphite-svg-edge {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--aqua-color));
+  fill: none;
+  stroke: var(--aqua-mark-color);
+  stroke-width: var(--aqua-mark-stroke-width, 2.5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--aqua-mark-color) 24%, transparent));
+  transition: stroke 0.16s ease, stroke-width 0.16s ease, opacity 0.16s ease, filter 0.16s ease;
+}
+
+.graphite-svg-edge {
+  --aqua-mark-color: var(--aqua-stage-accent, var(--graphite-color));
+}
+
+.aqua-svg-label {
+  fill: var(--aqua-foreground);
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+}
+
+.aqua-svg-glow {
+  filter: blur(calc(4px * var(--aqua-mark-depth, 1)));
+  opacity: 0.24;
+  fill: var(--aqua-mark-color, var(--aqua-stage-accent));
+  pointer-events: none;
+}
+
+.aqua-svg-highlight, .graphite-svg-highlight {
+  display: none;
+  fill: url(#aqua-svg-highlight-grad);
+  stroke: none;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: calc(var(--aqua-mark-gloss, 0.46) * 1.5);
+}
+
+[data-theme="dark"] .aqua-stage,
+[data-theme="dark"] .graphite-stage {
+  --aqua-stage-grid-line: rgba(245,245,247,0.18);
+  border-color: color-mix(in srgb, var(--aqua-border) 82%, rgba(255,255,255,0.22));
+  background:
+    var(--aqua-stage-grid-horizontal, repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30px,
+      var(--aqua-stage-grid-line) 31px,
+      transparent 32px
+    )),
+    var(--aqua-stage-grid-vertical, none),
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 100%),
+    color-mix(in srgb, var(--aqua-stage-accent) 7%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 26px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .aqua-svg-node,
+[data-theme="dark"] .graphite-svg-node {
+  --aqua-mark-stroke: rgba(255,255,255,0.28);
+  filter: url(#aqua-node-glass-filter);
+}
+
+[data-theme="dark"] .aqua-svg-node.is-active,
+[data-theme="dark"] .graphite-svg-node.is-active,
+[data-theme="dark"] .aqua-svg-node.is-current,
+[data-theme="dark"] .graphite-svg-node.is-current,
+[data-theme="dark"] .aqua-svg-node.is-selected,
+[data-theme="dark"] .graphite-svg-node.is-selected {
+  --aqua-mark-color: var(--aqua-color);
+  filter: url(#aqua-node-glass-filter-active) brightness(1.05);
 }
 
 .aqua-floating-panel, .graphite-floating-panel {
@@ -2335,6 +2720,121 @@
   `;
 
   document.head.appendChild(aqua);
+
+  if (!document.getElementById('aqua2-mark-defs-root')) {
+    const defsRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    defsRoot.setAttribute('id', 'aqua2-mark-defs-root');
+    defsRoot.setAttribute('aria-hidden', 'true');
+    defsRoot.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+    defsRoot.innerHTML = `
+<defs>
+  <linearGradient id="aqua-mark-node-face" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" style="stop-color: #ffffff; stop-opacity: calc(var(--aqua-mark-gloss, 0.46) * 1.2);"/>
+    <stop offset="22%" style="stop-color: #ffffff; stop-opacity: calc(var(--aqua-mark-gloss, 0.46) * 0.40);"/>
+    <stop offset="48%" style="stop-color: currentColor; stop-opacity: 0.28;"/>
+    <stop offset="100%" style="stop-color: color-mix(in srgb, currentColor 60%, #000000); stop-opacity: 0.42;"/>
+  </linearGradient>
+  <linearGradient id="aqua-svg-highlight-grad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" style="stop-color: #ffffff; stop-opacity: 0.70;"/>
+    <stop offset="45%" style="stop-color: #ffffff; stop-opacity: 0.20;"/>
+    <stop offset="100%" style="stop-color: #ffffff; stop-opacity: 0.00;"/>
+  </linearGradient>
+  <filter id="aqua-node-glass-filter" x="-40%" y="-40%" width="180%" height="180%" filterUnits="objectBoundingBox">
+    <!-- Refraction Halo -->
+    <feFlood flood-color="#ffffff" flood-opacity="0.25" result="refractColor"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlphaRefract"/>
+    <feGaussianBlur stdDeviation="3.0" result="blurRefract"/>
+    <feComposite in="refractColor" in2="blurRefract" operator="in" result="glowRefract"/>
+    <feComposite in="glowRefract" in2="SourceAlpha" operator="out" result="refractionGlow"/>
+
+    <!-- Drop Shadow -->
+    <feFlood flood-color="#000000" flood-opacity="0.28" result="dropShadowColor"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+    <feOffset dx="1.2" dy="1.8"/>
+    <feGaussianBlur stdDeviation="1.5"/>
+    <feComposite in2="hardAlpha" operator="out"/>
+    <feComposite in2="dropShadowColor" operator="in" result="dropShadow"/>
+
+    <!-- Blend Drop Shadow with Refraction Glow -->
+    <feBlend mode="normal" in="dropShadow" in2="refractionGlow" result="shadowsAndRefraction"/>
+
+    <!-- Blend SourceGraphic on top of Shadows -->
+    <feBlend mode="normal" in="SourceGraphic" in2="shadowsAndRefraction" result="shape"/>
+
+    <!-- Inner Shadow -->
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha2"/>
+    <feOffset dx="0.8" dy="1.2"/>
+    <feGaussianBlur stdDeviation="1.2"/>
+    <feComposite in2="hardAlpha2" operator="arithmetic" k2="-1" k3="1" result="shadowDiff"/>
+    <feFlood flood-color="#000000" flood-opacity="0.32" result="innerShadowColor"/>
+    <feComposite in2="shadowDiff" operator="in" result="innerShadow"/>
+    
+    <!-- Blend Inner Shadow -->
+    <feBlend mode="normal" in="innerShadow" in2="shape"/>
+  </filter>
+  <filter id="aqua-node-glass-filter-active" x="-60%" y="-60%" width="220%" height="220%" filterUnits="objectBoundingBox">
+    <!-- 1. Neon Glow -->
+    <feFlood flood-color="var(--aqua-mark-color, currentColor)" flood-opacity="0.45" result="glowColorTight"/>
+    <feFlood flood-color="var(--aqua-mark-color, currentColor)" flood-opacity="0.22" result="glowColorWide"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlphaGlow"/>
+    
+    <!-- Tight glow -->
+    <feGaussianBlur in="hardAlphaGlow" stdDeviation="4.0" result="blurTight"/>
+    <feComposite in="glowColorTight" in2="blurTight" operator="in" result="glowTight"/>
+
+    <!-- Wide glow -->
+    <feGaussianBlur in="hardAlphaGlow" stdDeviation="10.0" result="blurWide"/>
+    <feComposite in="glowColorWide" in2="blurWide" operator="in" result="glowWide"/>
+    
+    <!-- Blend glows together -->
+    <feBlend mode="normal" in="glowTight" in2="glowWide" result="fullGlow"/>
+
+    <!-- Mask neon glow to only render OUTSIDE the node boundaries -->
+    <feComposite in="fullGlow" in2="SourceAlpha" operator="out" result="maskedGlow"/>
+
+    <!-- 2. Refraction Glow -->
+    <feFlood flood-color="#ffffff" flood-opacity="0.25" result="refractColor"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlphaRefract"/>
+    <feGaussianBlur stdDeviation="3.0" result="blurRefract"/>
+    <feComposite in="refractColor" in2="blurRefract" operator="in" result="glowRefract"/>
+    <feComposite in="glowRefract" in2="SourceAlpha" operator="out" result="refractionGlow"/>
+
+    <!-- 3. Drop Shadow -->
+    <feFlood flood-color="#000000" flood-opacity="0.28" result="dropShadowColor"/>
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+    <feOffset dx="1.2" dy="1.8"/>
+    <feGaussianBlur stdDeviation="1.5"/>
+    <feComposite in2="hardAlpha" operator="out"/>
+    <feComposite in2="dropShadowColor" operator="in" result="dropShadow"/>
+
+    <!-- Blend Drop Shadow, Refraction Glow, and Active Glow together -->
+    <feBlend mode="normal" in="dropShadow" in2="refractionGlow" result="shadowsAndRefraction"/>
+    <feBlend mode="normal" in="shadowsAndRefraction" in2="maskedGlow" result="shadowAndGlow"/>
+
+    <!-- Blend SourceGraphic on top of Shadow/Glow -->
+    <feBlend mode="normal" in="SourceGraphic" in2="shadowAndGlow" result="shape"/>
+
+    <!-- 4. Inner Shadow -->
+    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha2"/>
+    <feOffset dx="0.8" dy="1.2"/>
+    <feGaussianBlur stdDeviation="1.2"/>
+    <feComposite in2="hardAlpha2" operator="arithmetic" k2="-1" k3="1" result="shadowDiff"/>
+    <feFlood flood-color="#000000" flood-opacity="0.32" result="innerShadowColor"/>
+    <feComposite in2="shadowDiff" operator="in" result="innerShadow"/>
+    
+    <!-- Blend Inner Shadow -->
+    <feBlend mode="normal" in="innerShadow" in2="shape"/>
+  </filter>
+</defs>
+`;
+    if (document.body) {
+      document.body.appendChild(defsRoot);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.appendChild(defsRoot);
+      });
+    }
+  }
 })();
 
 function aquaTabView(tabView) {
