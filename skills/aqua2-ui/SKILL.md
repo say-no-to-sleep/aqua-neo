@@ -11,15 +11,15 @@ description: >
 
 # Aqua2 UI Framework
 
-Aqua2 is a self-contained UI framework injected via `aqua2.js`. It injects its own `<style>` tag
+Aqua Neo is a self-contained UI framework injected via `aqua-neo.js`. It injects its own `<style>` tag
 on load — no external CSS file to import. Just include the script and use the classes.
 
 ```html
-<script src="/aqua2.js" defer></script>
+<script src="/aqua-neo.js" defer></script>
 ```
 
 Most components are CSS-first. Components marked `Auto` in the quick reference have JS
-initializers that `aqua2.js` runs automatically on `DOMContentLoaded`.
+initializers that `aqua-neo.js` runs automatically on `DOMContentLoaded`.
 
 ---
 
@@ -136,6 +136,50 @@ it independently.
 
 ---
 
+## Top Bar
+
+```html
+<header class="aqua-top-bar" data-top-bar-sticky data-top-bar-auto-hide>
+  <a class="aqua-top-bar-brand" href="/">
+    <span class="aqua-top-bar-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">...</svg>
+    </span>
+    <span class="aqua-top-bar-text">
+      <span class="aqua-top-bar-title">Aqua Neo</span>
+      <span class="aqua-top-bar-subtitle">Component gallery</span>
+    </span>
+  </a>
+
+  <nav class="aqua-top-bar-menu aqua-text-button-group" aria-label="Primary">
+    <a class="aqua-text-button" href="/" aria-pressed="true">Home</a>
+    <a class="aqua-text-button" href="/docs" aria-pressed="false">Docs</a>
+    <button type="button" class="aqua-text-button" aria-pressed="false">Preview</button>
+  </nav>
+
+  <div class="aqua-top-bar-actions">
+    <button type="button" class="graphite-button">Cancel</button>
+    <button type="button" class="aqua-button">Save</button>
+  </div>
+</header>
+```
+
+Graphite variant:
+```html
+<header class="graphite-top-bar">...</header>
+```
+
+- Glassy responsive top navigation surface for app headers, menu bars, and compact toolbars
+- CSS-first; the optional `data-top-bar-auto-hide` behavior is auto-initialized by JS
+- `data-top-bar-sticky` makes it sticky with `top: var(--aqua-top-bar-sticky-offset, 12px)`
+- Add `data-top-bar-auto-hide` with sticky bars to hide on downward page scroll and reveal on upward scroll
+- Use `.aqua-top-bar-brand` for the logo/title cluster, `.aqua-top-bar-menu` as the primary nav/menu layout wrapper, and `.aqua-top-bar-actions` for command buttons
+- For segmented navigation inside the menu, reuse `.aqua-text-button-group` with `.aqua-text-button` / `.graphite-text-button`; active states are driven by `aria-pressed`
+- Use `.aqua-top-bar-divider` or `.aqua-top-bar-spacer` inside the bar when you need explicit separation or flexible spacing
+- On narrow screens, the brand moves to its own row and the menu scrolls horizontally
+- The top bar can contain regular Aqua2 buttons, chips, selects, and other inline controls, but avoid controls that require large popovers in tight mobile bars
+
+---
+
 ## Floating Control Panel
 
 ```html
@@ -164,7 +208,7 @@ it independently.
 - Edge-mounted control drawer for keeping dense controls reachable on narrow/slim layouts
 - Closed state leaves only an icon-only `.aqua-floating-control-panel-tab` arrow visible on the viewport edge
 - Open state slides the glass surface into view while morphing from a compressed side strip into the full panel, dims/blurs the rest of the page with a backdrop, and focuses the first control inside
-- Closing reverses the morph with `.aqua-floating-control-panel-closing`; let the JS remove this class after the surface animation ends
+- Opening and closing are coordinated CSS transitions on the drawer and surface; the edge tab hides immediately while opening and slides out from the viewport edge after the drawer finishes closing
 - Use `data-side="right"` or `data-side="left"`; right is the default visual pattern
 - Put controls inside `.aqua-floating-control-panel-surface`
 - Use `data-aqua-floating-control-panel-toggle` on the edge tab and `data-aqua-floating-control-panel-dismiss` on any collapse button
@@ -579,7 +623,7 @@ mark styling only.
 
 ### ⚠️ Critical pitfall — tab persistence with pointer capture
 
-`aqua2.js` calls `tabView.setPointerCapture(e.pointerId)` on `pointerdown` and also calls
+`aqua-neo.js` calls `tabView.setPointerCapture(e.pointerId)` on `pointerdown` and also calls
 `e.preventDefault()`, which suppresses the `click` event entirely.
 
 **Consequences for any code listening to tab changes:**
@@ -590,7 +634,7 @@ mark styling only.
 **Correct pattern** for detecting which tab was activated:
 ```js
 tabView.addEventListener("pointerup", () => {
-  // By the time pointerup fires on your listener, aqua2.js has already
+  // By the time pointerup fires on your listener, aqua-neo.js has already
   // moved the .active class to the correct tab.
   const activeTab = tabView.querySelector(".aqua-tabview-tab.active");
   if (!activeTab) return;
@@ -603,7 +647,7 @@ tabView.addEventListener("pointerup", () => {
 
 ## Dark Mode
 
-Dark styling is driven by `[data-theme="dark"]` in `aqua2.js`, not by automatic
+Dark styling is driven by `[data-theme="dark"]` in `aqua-neo.js`, not by automatic
 `prefers-color-scheme` media queries. To switch themes, set `document.documentElement.dataset.theme`
 to `"dark"` or `"light"` (or set `data-theme` on a parent scope if you intentionally want local
 theme scoping). You can still override CSS variables on `:root` or a container element for custom
@@ -621,6 +665,7 @@ palettes.
 | Focused/pulsing button | `aqua-button-focused` / `graphite-button-focused` (any shape) | No |
 | Toggle button | `aqua-toggle-button` / `graphite-toggle-button` | Auto |
 | Glass container | `aqua-container` / `graphite-container` | No |
+| Top bar | `aqua-top-bar` / `graphite-top-bar` with optional `data-top-bar-auto-hide` | Auto |
 | Floating control panel | `aqua-floating-control-panel` / `graphite-floating-control-panel` | Auto |
 | Graph (static) | `aqua-graph` / `graphite-graph` with `.aqua-graph-line` | No |
 | Graph (interactive) | `aqua-graph aqua-interactive-graph` / `graphite-graph graphite-interactive-graph` | Auto |

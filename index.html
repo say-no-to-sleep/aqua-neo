@@ -11,7 +11,7 @@
       document.documentElement.dataset.theme = stored || (systemDark ? "dark" : "light");
     })();
   </script>
-  <script src="aqua2.js" defer></script>
+  <script src="aqua-neo.js" defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -484,9 +484,9 @@
   </div>
 
   <div class="page">
-    <header class="site-header">
-      <div class="brand">
-        <div class="brand-icon" aria-hidden="true">
+    <header class="aqua-top-bar site-header" data-top-bar-sticky data-top-bar-auto-hide>
+      <div class="aqua-top-bar-brand brand">
+        <div class="aqua-top-bar-icon brand-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 4C10 4 6 9 6 14c0 6 4 10 10 14 6-4 10-8 10-14 0-5-4-10-10-10z" fill="url(#a)" opacity="0.9"/>
             <ellipse cx="16" cy="14" rx="6" ry="5" fill="white" opacity="0.35"/>
@@ -498,12 +498,17 @@
             </defs>
           </svg>
         </div>
-        <div>
-          <h1>Aqua Neo</h1>
-          <p>Frutiger Aero component gallery</p>
+        <div class="aqua-top-bar-text">
+          <h1 class="aqua-top-bar-title">Aqua Neo</h1>
+          <p class="aqua-top-bar-subtitle">Frutiger Aero component gallery</p>
         </div>
       </div>
-      <div class="header-actions">
+      <nav class="aqua-top-bar-menu aqua-text-button-group" aria-label="Showcase shortcuts">
+        <a class="aqua-text-button" href="#main-window" aria-pressed="true">Components</a>
+        <a class="aqua-text-button" href="#viz-stage-lab" aria-pressed="false">Visualization</a>
+        <a class="aqua-text-button" href="#component-reference" aria-pressed="false">Docs</a>
+      </nav>
+      <div class="aqua-top-bar-actions header-actions">
         <button type="button" class="graphite-button" id="btn-docs">Documentation</button>
         <button
           type="button"
@@ -522,7 +527,7 @@
       <h2>Glossy controls for the optimistic web</h2>
       <p class="tagline">
         Skeuomorphic glass, spring animations, and Vista-era clarity — powered by
-        <strong>aqua2.js</strong>. Drag sliders, scrub tabs, and feel the bubble-era polish.
+        <strong>aqua-neo.js</strong>. Drag sliders, scrub tabs, and feel the bubble-era polish.
       </p>
       <div class="hero-cta">
         <button type="button" class="aqua-button" id="hero-explore">Explore components</button>
@@ -1082,11 +1087,11 @@
       </div>
     </article>
 
-    <aside class="reference glass">
+    <aside class="reference glass" id="component-reference">
       <h3>Using Aqua2</h3>
       <p>
-        Include <code>&lt;script src="aqua2.js" defer&gt;&lt;/script&gt;</code> and apply component classes —
-        buttons, inputs, selects, sliders, progress bars, scrollbars, floating panels, floating control panels, and tab views initialize automatically.
+        Include <code>&lt;script src="aqua-neo.js" defer&gt;&lt;/script&gt;</code> and apply component classes —
+        top bars, buttons, inputs, selects, sliders, progress bars, scrollbars, floating panels, floating control panels, and tab views initialize automatically.
         Tab panes need <code>.tab-pane</code> / <code>.active</code> CSS. Override <code>:root</code> variables to theme.
       </p>
     </aside>
@@ -1152,7 +1157,7 @@
     </aside>
 
     <footer class="site-footer">
-      Aqua Neo showcase · Built with aqua2.js · Respects <code>prefers-color-scheme</code>
+      Aqua Neo showcase · Built with aqua-neo.js · Respects <code>prefers-color-scheme</code>
     </footer>
   </div>
 

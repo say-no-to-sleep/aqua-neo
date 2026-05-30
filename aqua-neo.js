@@ -1,7 +1,7 @@
 //
-// aqua2.js
+// aqua-neo.js
 //
-// A is a self-contained UI framework for the web, inspired by Apple's Aqua design language.
+// Aqua Neo is a self-contained UI framework for the web, inspired by Apple's Aqua design language.
 //
 
 (function initializeAqua() {
@@ -245,6 +245,225 @@
 .graphite-chip {
   background: color-mix(in srgb, var(--graphite-color) 16%, var(--aqua-background));
   border-color: color-mix(in srgb, var(--graphite-color) 32%, var(--aqua-border));
+}
+
+.aqua-top-bar, .graphite-top-bar {
+  --aqua-top-bar-accent: var(--aqua-color);
+  --aqua-top-bar-radius: 24px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 9px 11px 9px 14px;
+  border-radius: var(--aqua-top-bar-radius);
+  border: 1px solid color-mix(in srgb, var(--aqua-border) 78%, rgba(255,255,255,0.48));
+  background:
+    radial-gradient(ellipse 70% 140% at 18% -30%, color-mix(in srgb, var(--aqua-top-bar-accent) 16%, transparent) 0%, transparent 68%),
+    linear-gradient(to bottom, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 100%),
+    color-mix(in srgb, var(--aqua-top-bar-accent) 5%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.48),
+    inset 0 -1px 0 rgba(255,255,255,0.12),
+    0 12px 30px rgba(0,0,0,0.12);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  color: var(--aqua-foreground);
+}
+
+.graphite-top-bar {
+  --aqua-top-bar-accent: var(--graphite-color);
+  background:
+    radial-gradient(ellipse 70% 140% at 18% -30%, color-mix(in srgb, var(--aqua-top-bar-accent) 18%, transparent) 0%, transparent 68%),
+    linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 100%),
+    color-mix(in srgb, var(--aqua-top-bar-accent) 7%, transparent);
+}
+
+.aqua-top-bar::before, .graphite-top-bar::before {
+  content: '';
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 48%;
+  border-radius: calc(var(--aqua-top-bar-radius) - 1px) calc(var(--aqua-top-bar-radius) - 1px) 18px 18px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 68%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aqua-top-bar > *, .graphite-top-bar > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="dark"] .aqua-top-bar,
+[data-theme="dark"] .graphite-top-bar {
+  border-color: color-mix(in srgb, var(--aqua-border) 80%, rgba(255,255,255,0.20));
+  background:
+    radial-gradient(ellipse 70% 140% at 18% -30%, color-mix(in srgb, var(--aqua-top-bar-accent) 22%, transparent) 0%, transparent 70%),
+    linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 56%, rgba(255,255,255,0.02) 100%),
+    color-mix(in srgb, var(--aqua-top-bar-accent) 8%, rgba(0,0,0,0.20));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    0 14px 34px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .aqua-top-bar::before,
+[data-theme="dark"] .graphite-top-bar::before {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 68%, transparent 100%);
+}
+
+.aqua-top-bar[data-top-bar-sticky],
+.graphite-top-bar[data-top-bar-sticky] {
+  --aqua-top-bar-hide-duration: 0.32s;
+  --aqua-top-bar-hide-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  position: sticky;
+  top: var(--aqua-top-bar-sticky-offset, 12px);
+  z-index: 40;
+  transition:
+    opacity 0.24s ease,
+    transform var(--aqua-top-bar-hide-duration) var(--aqua-top-bar-hide-ease);
+  will-change: opacity, transform;
+}
+
+.aqua-top-bar[data-top-bar-auto-hide].aqua-top-bar-scroll-hidden,
+.graphite-top-bar[data-top-bar-auto-hide].aqua-top-bar-scroll-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, calc(-100% - var(--aqua-top-bar-sticky-offset, 12px) - 10px), 0);
+}
+
+.aqua-top-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.aqua-top-bar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 34px;
+  block-size: 34px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--aqua-top-bar-accent) 34%, rgba(255,255,255,0.58));
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.20) 45%, transparent 72%),
+    linear-gradient(145deg, color-mix(in srgb, var(--aqua-top-bar-accent) 34%, rgba(255,255,255,0.72)) 0%, color-mix(in srgb, var(--aqua-top-bar-accent) 58%, transparent) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.62),
+    0 4px 12px color-mix(in srgb, var(--aqua-top-bar-accent) 24%, transparent);
+}
+
+.aqua-top-bar-icon > svg {
+  width: 20px;
+  height: 20px;
+}
+
+.aqua-top-bar-icon > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.aqua-top-bar-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.aqua-top-bar .aqua-top-bar-title,
+.graphite-top-bar .aqua-top-bar-title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--aqua-foreground);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aqua-top-bar .aqua-top-bar-subtitle,
+.graphite-top-bar .aqua-top-bar-subtitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--aqua-foreground-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aqua-top-bar-menu,
+.aqua-top-bar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.aqua-top-bar-menu {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.aqua-top-bar-actions {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.aqua-top-bar-spacer {
+  flex: 1 1 auto;
+}
+
+.aqua-top-bar-divider {
+  align-self: stretch;
+  width: 1px;
+  min-height: 28px;
+  background: linear-gradient(to bottom, transparent 4%, var(--aqua-border) 28%, var(--aqua-border) 72%, transparent 96%);
+}
+
+@media (max-width: 680px) {
+  .aqua-top-bar, .graphite-top-bar {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .aqua-top-bar-brand {
+    flex: 1 1 100%;
+  }
+
+  .aqua-top-bar-menu,
+  .aqua-top-bar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .aqua-top-bar-menu {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .aqua-top-bar-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aqua-top-bar-spacer,
+  .aqua-top-bar-divider {
+    display: none;
+  }
 }
 
 .aqua-container, .graphite-container {
@@ -938,6 +1157,8 @@
 }
 
 .aqua-floating-control-panel-backdrop {
+  --aqua-control-panel-motion-duration: 0.34s;
+  --aqua-control-panel-motion-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   position: fixed;
   inset: 0;
   z-index: 255;
@@ -947,7 +1168,9 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.32s ease, visibility 0.32s ease;
+  transition:
+    opacity var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease),
+    visibility var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease);
 }
 
 .aqua-floating-control-panel-backdrop.aqua-floating-control-panel-backdrop-open {
@@ -961,6 +1184,8 @@
   --aqua-control-panel-tab-size: 44px;
   --aqua-control-panel-radius: var(--aqua-surface-radius);
   --aqua-control-panel-morph-radius: 18px;
+  --aqua-control-panel-motion-duration: 0.34s;
+  --aqua-control-panel-motion-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   position: fixed;
   z-index: 270;
   top: 50%;
@@ -970,8 +1195,8 @@
   width: min(342px, calc(100vw - 18px));
   max-height: min(78vh, calc(100dvh - 32px));
   color: var(--aqua-foreground);
-  transform: translate(calc(100% - var(--aqua-control-panel-tab-size)), -50%);
-  transition: transform 0.56s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(calc(100% - var(--aqua-control-panel-tab-size)), -50%, 0);
+  transition: transform var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease);
   will-change: transform;
 }
 
@@ -980,27 +1205,27 @@
   left: 0;
   right: auto;
   flex-direction: row-reverse;
-  transform: translate(calc(-100% + var(--aqua-control-panel-tab-size)), -50%);
+  transform: translate3d(calc(-100% + var(--aqua-control-panel-tab-size)), -50%, 0);
 }
 
 .aqua-floating-control-panel.aqua-floating-control-panel-open,
 .graphite-floating-control-panel.aqua-floating-control-panel-open {
-  transform: translate(-16px, -50%);
+  transform: translate3d(-16px, -50%, 0);
 }
 
 .aqua-floating-control-panel.aqua-floating-control-panel-closing,
 .graphite-floating-control-panel.aqua-floating-control-panel-closing {
-  transform: translate(calc(100% - var(--aqua-control-panel-tab-size)), -50%);
+  transform: translate3d(calc(100% - var(--aqua-control-panel-tab-size)), -50%, 0);
 }
 
 .aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-open,
 .graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-open {
-  transform: translate(16px, -50%);
+  transform: translate3d(16px, -50%, 0);
 }
 
 .aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing,
 .graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing {
-  transform: translate(calc(-100% + var(--aqua-control-panel-tab-size)), -50%);
+  transform: translate3d(calc(-100% + var(--aqua-control-panel-tab-size)), -50%, 0);
 }
 
 .aqua-floating-control-panel-tab {
@@ -1025,10 +1250,10 @@
   font: inherit;
   font-size: 0;
   letter-spacing: 0;
-  transition:
-    opacity 0.22s ease,
-    transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.18s ease;
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: background 0.18s ease;
 }
 
 .aqua-floating-control-panel-tab::before {
@@ -1047,23 +1272,32 @@
 }
 
 .aqua-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
-.aqua-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
 .aqua-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-tab,
 .graphite-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
-.graphite-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
 .graphite-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-tab {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transform: translateX(18px) scale(0.72);
 }
 
-.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
-.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
-.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-tab,
-.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-open .aqua-floating-control-panel-tab,
-.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-tab,
-.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-tab {
-  transform: translateX(-18px) scale(0.72);
+.aqua-floating-control-panel.aqua-floating-control-panel-tab-revealing .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel.aqua-floating-control-panel-tab-revealing .aqua-floating-control-panel-tab {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transform: translate3d(var(--aqua-control-panel-tab-size), 0, 0) scale(1);
+  transition: none;
+}
+
+.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-tab-revealing .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-tab-revealing .aqua-floating-control-panel-tab {
+  transform: translate3d(calc(-1 * var(--aqua-control-panel-tab-size)), 0, 0) scale(1);
+}
+
+.aqua-floating-control-panel.aqua-floating-control-panel-tab-revealing.aqua-floating-control-panel-tab-reveal-active .aqua-floating-control-panel-tab,
+.graphite-floating-control-panel.aqua-floating-control-panel-tab-revealing.aqua-floating-control-panel-tab-reveal-active .aqua-floating-control-panel-tab {
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .aqua-floating-control-panel[data-side="left"] .aqua-floating-control-panel-tab,
@@ -1094,15 +1328,15 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 18px 46px rgba(0,0,0,0.18);
   backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
-  transform: translateX(10px) scale(0.985);
+  transform: translate3d(18px, 0, 0) scale(0.78);
   transform-origin: right center;
-  opacity: 0.88;
-  filter: saturate(0.94) brightness(1.03);
+  opacity: 0.82;
+  filter: saturate(0.92) brightness(1.04);
   transition:
-    border-radius 0.48s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.24s ease,
-    opacity 0.24s ease,
-    transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease),
+    filter var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease),
+    opacity var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease),
+    transform var(--aqua-control-panel-motion-duration) var(--aqua-control-panel-motion-ease);
   will-change: border-radius, filter, opacity, transform;
   -webkit-overflow-scrolling: touch;
 }
@@ -1110,101 +1344,15 @@
 .aqua-floating-control-panel[data-side="left"] .aqua-floating-control-panel-surface,
 .graphite-floating-control-panel[data-side="left"] .aqua-floating-control-panel-surface {
   transform-origin: left center;
-  transform: translateX(-10px) scale(0.985);
+  transform: translate3d(-18px, 0, 0) scale(0.78);
 }
 
 .aqua-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-surface,
 .graphite-floating-control-panel.aqua-floating-control-panel-open .aqua-floating-control-panel-surface {
   border-radius: var(--aqua-control-panel-radius);
-  transform: translateX(0) scale(1);
+  transform: translate3d(0, 0, 0) scale(1);
   opacity: 1;
   filter: saturate(1) brightness(1);
-}
-
-.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-surface,
-.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-opening .aqua-floating-control-panel-surface {
-  animation-name: aqua-floating-control-panel-surface-open-left;
-}
-
-.aqua-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-surface,
-.graphite-floating-control-panel[data-side="left"].aqua-floating-control-panel-closing .aqua-floating-control-panel-surface {
-  animation-name: aqua-floating-control-panel-surface-close-left;
-}
-
-.aqua-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-surface,
-.graphite-floating-control-panel.aqua-floating-control-panel-opening .aqua-floating-control-panel-surface {
-  animation: aqua-floating-control-panel-surface-open 0.54s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.aqua-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-surface,
-.graphite-floating-control-panel.aqua-floating-control-panel-closing .aqua-floating-control-panel-surface {
-  animation: aqua-floating-control-panel-surface-close 0.34s cubic-bezier(0.4,0,0.7,0.28) both;
-}
-
-@keyframes aqua-floating-control-panel-surface-open {
-  0% {
-    border-radius: var(--aqua-control-panel-morph-radius);
-    transform: translateX(10px) scale(0.985);
-    opacity: 0.88;
-    filter: saturate(0.94) brightness(1.03);
-  }
-  58% {
-    transform: translateX(-3px) scale(1.006);
-  }
-  100% {
-    border-radius: var(--aqua-control-panel-radius);
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    filter: saturate(1) brightness(1);
-  }
-}
-
-@keyframes aqua-floating-control-panel-surface-close {
-  0% {
-    border-radius: var(--aqua-control-panel-radius);
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    filter: saturate(1) brightness(1);
-  }
-  100% {
-    border-radius: var(--aqua-control-panel-morph-radius);
-    transform: translateX(10px) scale(0.985);
-    opacity: 0.88;
-    filter: saturate(0.94) brightness(1.03);
-  }
-}
-
-@keyframes aqua-floating-control-panel-surface-open-left {
-  0% {
-    border-radius: var(--aqua-control-panel-morph-radius);
-    transform: translateX(-10px) scale(0.985);
-    opacity: 0.88;
-    filter: saturate(0.94) brightness(1.03);
-  }
-  58% {
-    transform: translateX(3px) scale(1.006);
-  }
-  100% {
-    border-radius: var(--aqua-control-panel-radius);
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    filter: saturate(1) brightness(1);
-  }
-}
-
-@keyframes aqua-floating-control-panel-surface-close-left {
-  0% {
-    border-radius: var(--aqua-control-panel-radius);
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    filter: saturate(1) brightness(1);
-  }
-  100% {
-    border-radius: var(--aqua-control-panel-morph-radius);
-    transform: translateX(-10px) scale(0.985);
-    opacity: 0.88;
-    filter: saturate(0.94) brightness(1.03);
-  }
 }
 
 .graphite-floating-control-panel .aqua-floating-control-panel-tab {
@@ -2694,6 +2842,20 @@
     animation: none;
     transition: none;
   }
+
+  .aqua-floating-control-panel,
+  .graphite-floating-control-panel,
+  .aqua-floating-control-panel-tab,
+  .aqua-floating-control-panel-surface,
+  .aqua-floating-control-panel-backdrop {
+    animation: none;
+    transition: none;
+  }
+
+  .aqua-top-bar[data-top-bar-sticky],
+  .graphite-top-bar[data-top-bar-sticky] {
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2721,9 +2883,62 @@
 
   document.head.appendChild(aqua);
 
-  if (!document.getElementById('aqua2-mark-defs-root')) {
+  function aquaTopBarAutoHide(bar) {
+    const threshold = parseFloat(bar.dataset.topBarHideThreshold ?? '80');
+    const deltaThreshold = parseFloat(bar.dataset.topBarHideDelta ?? '10');
+    let lastScrollY = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+    let hasScrollIntent = false;
+    let ticking = false;
+
+    function show() {
+      bar.classList.remove('aqua-top-bar-scroll-hidden');
+    }
+
+    function update() {
+      const scrollY = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+      const delta = scrollY - lastScrollY;
+
+      if (scrollY <= threshold || delta < -deltaThreshold || bar.matches(':focus-within')) {
+        show();
+      } else if (hasScrollIntent && delta > deltaThreshold) {
+        bar.classList.add('aqua-top-bar-scroll-hidden');
+      }
+
+      lastScrollY = scrollY;
+      ticking = false;
+    }
+
+    function requestUpdate() {
+      if (ticking)
+        return;
+
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+
+    function markScrollIntent() {
+      hasScrollIntent = true;
+    }
+
+    function handleKeydown(e) {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key))
+        markScrollIntent();
+    }
+
+    bar.addEventListener('focusin', show);
+    window.addEventListener('wheel', markScrollIntent, { passive: true });
+    window.addEventListener('touchmove', markScrollIntent, { passive: true });
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    update();
+  }
+
+  document.querySelectorAll('.aqua-top-bar[data-top-bar-auto-hide], .graphite-top-bar[data-top-bar-auto-hide]').forEach(aquaTopBarAutoHide);
+
+  if (!document.getElementById('aqua-neo-mark-defs-root')) {
     const defsRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    defsRoot.setAttribute('id', 'aqua2-mark-defs-root');
+    defsRoot.setAttribute('id', 'aqua-neo-mark-defs-root');
     defsRoot.setAttribute('aria-hidden', 'true');
     defsRoot.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
     defsRoot.innerHTML = `
@@ -4044,6 +4259,7 @@ function aquaFloatingControlPanel(panel) {
   const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const backdrop = document.createElement('div');
   let lastFocus = null;
+  let tabRevealTimer = 0;
 
   if (!trigger || !surface)
     return;
@@ -4083,11 +4299,38 @@ function aquaFloatingControlPanel(panel) {
     setSurfaceHidden(!open);
   }
 
+  function clearTabReveal() {
+    if (tabRevealTimer)
+      window.clearTimeout(tabRevealTimer);
+
+    tabRevealTimer = 0;
+    panel.classList.remove('aqua-floating-control-panel-tab-revealing', 'aqua-floating-control-panel-tab-reveal-active');
+  }
+
+  function revealTab() {
+    clearTabReveal();
+
+    if (prefersReducedMotion())
+      return;
+
+    panel.classList.add('aqua-floating-control-panel-tab-revealing');
+    trigger.getBoundingClientRect();
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (!isOpen() && !panel.classList.contains('aqua-floating-control-panel-closing'))
+          panel.classList.add('aqua-floating-control-panel-tab-reveal-active');
+      });
+    });
+
+    tabRevealTimer = window.setTimeout(clearTabReveal, 340);
+  }
+
   function finishClose() {
     panel.classList.remove('aqua-floating-control-panel-closing');
     backdrop.classList.remove('aqua-floating-control-panel-backdrop-open');
     trigger.setAttribute('aria-expanded', 'false');
     setSurfaceHidden(true);
+    revealTab();
   }
 
   function show() {
@@ -4101,11 +4344,9 @@ function aquaFloatingControlPanel(panel) {
 
     lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
+    clearTabReveal();
     panel.classList.remove('aqua-floating-control-panel-closing');
     sync(true);
-
-    if (!prefersReducedMotion())
-      panel.classList.add('aqua-floating-control-panel-opening');
 
     if (!prefersReducedMotion())
       window.setTimeout(() => firstFocusable()?.focus({ preventScroll: true }), 160);
@@ -4117,14 +4358,13 @@ function aquaFloatingControlPanel(panel) {
     if (!isOpen())
       return;
 
-    panel.classList.remove('aqua-floating-control-panel-opening');
-
     if (prefersReducedMotion()) {
       panel.classList.remove('aqua-floating-control-panel-open', 'aqua-floating-control-panel-closing');
       finishClose();
     } else {
       panel.classList.remove('aqua-floating-control-panel-open');
       panel.classList.add('aqua-floating-control-panel-closing');
+      backdrop.classList.remove('aqua-floating-control-panel-backdrop-open');
       trigger.setAttribute('aria-expanded', 'false');
       setSurfaceHidden(true);
     }
@@ -4142,15 +4382,12 @@ function aquaFloatingControlPanel(panel) {
     button.addEventListener('click', hide);
   });
 
-  surface.addEventListener('animationend', e => {
-    if (e.target !== surface)
+  panel.addEventListener('transitionend', e => {
+    if (e.target !== panel || e.propertyName !== 'transform')
       return;
 
-    if (e.animationName === 'aqua-floating-control-panel-surface-open') {
-      panel.classList.remove('aqua-floating-control-panel-opening');
-    } else if (e.animationName === 'aqua-floating-control-panel-surface-close') {
+    if (panel.classList.contains('aqua-floating-control-panel-closing'))
       finishClose();
-    }
   });
 
   sync(isOpen());
