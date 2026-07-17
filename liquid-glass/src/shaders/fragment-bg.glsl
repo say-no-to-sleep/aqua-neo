@@ -112,10 +112,13 @@ void main() {
   vec2 p2 =
     (vec2(0, 0) - u_mouseSpring + vec2(u_shadowPosition.x * u_dpr, u_shadowPosition.y * u_dpr)) /
     u_resolution.y;
-  // merged shape
-  float merged = mainSDF(p1, p2, gl_FragCoord.xy);
+  float shadowShape = mainSDF(p1, p2, gl_FragCoord.xy);
+  vec2 originalP1 = (vec2(0, 0) - u_shape1Pos) / u_resolution.y;
+  vec2 originalP2 = (vec2(0, 0) - u_mouseSpring) / u_resolution.y;
+  float originalShape = mainSDF(originalP1, originalP2, gl_FragCoord.xy);
+  float outside = smoothstep(-1.0 / u_resolution1x.y, 1.0 / u_resolution1x.y, originalShape);
+  float shadowDistance = max(shadowShape, 0.0) * u_resolution1x.y;
+  float shadow = exp(-shadowDistance / u_shadowExpand) * 0.6 * u_shadowFactor * outside;
 
-  float shadow = exp(-1.0 / u_shadowExpand * abs(merged) * u_resolution1x.y) * 0.6 * u_shadowFactor;
-
-  fragColor = vec4(bgColor - vec3(shadow), 1.0);
+  fragColor = vec4(mix(bgColor, vec3(0.04), clamp(shadow, 0.0, 0.22)), 1.0);
 }

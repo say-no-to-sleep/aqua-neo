@@ -20,6 +20,9 @@ uniform float u_mergeRate;
 uniform float u_shapeWidth;
 uniform float u_shapeHeight;
 uniform float u_shapeAngle;
+uniform float u_pressed;
+uniform vec2 u_rippleOrigin;
+uniform float u_rippleAge;
 uniform float u_shapeRadius;
 uniform float u_shapeRoundness;
 uniform vec4 u_tint;
@@ -579,6 +582,30 @@ void main() {
 
     // smooth
     outColor = mix(outColor, texture(u_bg, v_uv), smoothstep(-0.001, 0.001, merged));
+
+    // Liquid Glass illuminates from within while pressed.
+    float glassMask = 1.0 - smoothstep(-0.001, 0.001, merged);
+    outColor.rgb = mix(outColor.rgb, vec3(1.0), 0.16 * u_pressed * glassMask);
+    if (u_rippleAge >= 0.0) {
+      float rippleRadius = u_rippleAge * 320.0 * u_dpr;
+      float rippleDistance = abs(distance(gl_FragCoord.xy, u_rippleOrigin) - rippleRadius);
+      float ripple = (1.0 - smoothstep(0.0, 75.0 * u_dpr, rippleDistance)) *
+        (1.0 - u_rippleAge / 0.7) * glassMask;
+      outColor.rgb = mix(outColor.rgb, vec3(1.0), 0.04 * ripple);
+    }
+
+    // Directional glass rim: dark on the far edge, bright where it catches light.
+    float rimDistance = abs(merged) * u_resolution1x.y;
+    if (rimDistance < 2.8) {
+      float rim = 1.0 - smoothstep(0.0, 2.8, rimDistance);
+      vec2 rimNormal = getNormal3(p1, p2, gl_FragCoord.xy);
+      vec2 lightDirection = normalize(vec2(-0.7, 0.7));
+      float rimLight = pow(max(dot(rimNormal, lightDirection), 0.0), 2.0);
+      float rimShade = pow(max(dot(rimNormal, -lightDirection), 0.0), 2.0);
+      float darkRimOpacity = rim * (0.10 + 0.22 * rimShade);
+      outColor.rgb = mix(outColor.rgb, vec3(0.06), darkRimOpacity);
+      outColor.rgb = mix(outColor.rgb, vec3(1.0), rim * 0.38 * rimLight);
+    }
 
   }
 

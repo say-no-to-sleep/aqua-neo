@@ -51,6 +51,7 @@ function Button() {
     downX: 0,
     downY: 0,
   });
+  const rippleRef = useRef({ x: 0, y: 0, startedAt: -Infinity });
 
   useLayoutEffect(() => {
     const applySize = () => {
@@ -166,6 +167,11 @@ function Button() {
       ix.pointerId = e.pointerId;
       ix.downX = e.clientX;
       ix.downY = e.clientY;
+      rippleRef.current = {
+        x: e.clientX * canvasInfo.dpr,
+        y: (canvasInfo.height - e.clientY) * canvasInfo.dpr,
+        startedAt: performance.now(),
+      };
 
       pressScaleSpringRef.current.start({
         scale: buttonJellyConfig.pressScale,
@@ -249,6 +255,7 @@ function Button() {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       const pressScale = pressScaleSpringRef.current.get().scale;
+      const rippleAge = (performance.now() - rippleRef.current.startedAt) / 1000;
       const pos = posSpringRef.current.get();
       const baseSize = defaults.shapeWidth * pressScale;
 
@@ -289,6 +296,12 @@ function Button() {
         u_shapeHeight: shapeHeight,
         u_shapeAngle: Math.atan2(dy, dx),
         u_mergeRate: defaults.mergeRate,
+        u_pressed: Math.max(
+          0,
+          Math.min(1, (pressScale - 1) / (buttonJellyConfig.pressScale - 1)),
+        ),
+        u_rippleOrigin: [rippleRef.current.x, rippleRef.current.y],
+        u_rippleAge: rippleAge < 0.7 ? rippleAge : -1,
         u_glareAngle: (defaults.glareAngle * Math.PI) / 180,
         u_showShape1: 0,
       });
@@ -326,7 +339,7 @@ function Button() {
         },
       });
 
-      if (icon && ++contrastFrame % 3 === 0) {
+      if (icon && !interactionRef.current.isDown && ++contrastFrame % 3 === 0) {
         const sampleX = Math.max(1, Math.min(Math.round(w) - 2, Math.round(center[0])));
         const sampleY = Math.max(1, Math.min(Math.round(h) - 2, Math.round(center[1])));
         gl.readPixels(sampleX - 1, sampleY - 1, 3, 3, gl.RGBA, gl.UNSIGNED_BYTE, iconPixels);
