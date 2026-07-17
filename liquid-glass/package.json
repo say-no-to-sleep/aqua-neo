@@ -1,0 +1,26 @@
+{
+  "name": "liquid-glass-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "esbuild src/interaction.test.ts --bundle --platform=node --format=cjs | node",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-spring/web": "^10.1.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-glsl": "^1.6.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
