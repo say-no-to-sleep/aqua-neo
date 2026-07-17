@@ -2,7 +2,7 @@
 export const defaults = {
   refThickness: 20,
   refFactor: 1.4,
-  refDispersion: 7,
+  refDispersion: 2,
   refFresnelRange: 30,
   refFresnelHardness: 20,
   refFresnelFactor: 20,
@@ -12,10 +12,10 @@ export const defaults = {
   glareConvergence: 50,
   glareOppositeFactor: 80,
   glareAngle: -45,
-  blurRadius: 12,
+  blurRadius: 0,
   blurEdge: true,
   tint: { r: 255, g: 255, b: 255, a: 0 },
-  shadowExpand: 28,
+  shadowExpand: 24,
   shadowFactor: 26,
   shadowPosition: { x: 0, y: -12 },
   bgType: 3,
@@ -52,7 +52,7 @@ export const toggleDefaults = {
   tapSlop: 6,
   rubberBandPx: 10,
   onColor: [0x34 / 255, 0xc7 / 255, 0x59 / 255] as const,
-  offColor: [0x39 / 255, 0x39 / 255, 0x3d / 255] as const,
+  offColor: [83 / 255, 83 / 255, 86 / 255] as const,
   knobColor: [1, 1, 1] as const,
   ringColor: [235 / 255, 235 / 255, 240 / 255, 0.55] as const,
   // Drag-follow spring lives on toggleJellyConfig.followSpring (src/toggle.ts) — same numbers
@@ -65,13 +65,22 @@ export const toggleDefaults = {
   contractSpring: { mass: 1, tension: 300, friction: 24 },
   trackMixSpring: { mass: 1, tension: 300, friction: 26 },
   indicatorAlphaSpring: { mass: 1, tension: 500, friction: 34 },
+  jelly: {
+    /** Extra drag past an end that reaches the full pressure squeeze, css px. */
+    fullPressurePx: 24,
+    horizontalCompression: 0.07,
+    /** Exponential response rate; higher follows the gesture more tightly. */
+    response: 18,
+  },
   /** Knob liquid-glass material (STAGE 2). Reuses the button's u_ref/u_glare uniforms
    * for shared look, plus these knob-specific overrides. */
   glass: {
     /** Rim band thickness in css px — thicker than the button's 20 so the knob's
      * dark C-shaped edge bands read clearly at its smaller size (video reference). */
-    refThickness: 30,
+    refThickness: 18,
     /** Refraction UV-offset strength — analog of fragment-main's hardcoded 0.05. */
-    refStrength: 0.05,
+    refStrength: 0.04,
+    /** Full-press isotropic scale of the background projected through the glass. */
+    contentScale: 0.77,
   },
 } as const;

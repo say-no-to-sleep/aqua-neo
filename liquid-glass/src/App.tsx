@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Controller } from '@react-spring/web';
 import { loadTextureFromURL, MultiPassRenderer } from './utils/GLUtils';
 import { computeGaussianKernelByRadius } from './utils';
@@ -14,10 +14,12 @@ import {
 } from './interaction';
 import {
   barCenterOffsetX,
+  glassContentScale,
+  glassContentScaleX,
   hitTestToggle,
   knobCenterOffsetX,
+  knobDeformation,
   knobSize,
-  knobStretch,
   prospectiveState,
   releaseTarget,
   ringCenterOffsetX,
@@ -33,6 +35,13 @@ import FragmentMainShader from './shaders/fragment-main.glsl';
 import FragmentToggleShader from './shaders/fragment-toggle.glsl';
 
 function Button() {
+  const captureExpandedOff =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('capture') === 'expanded-off';
+  const initialToggle = captureExpandedOff ? 0 : 1;
+  const initialExpand = captureExpandedOff ? 1 : 0;
+  const [pictureBackground, setPictureBackground] = useState(!captureExpandedOff);
+  const pictureBackgroundRef = useRef(!captureExpandedOff);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const iconRef = useRef<SVGSVGElement>(null);
   const rendererRef = useRef<MultiPassRenderer | null>(null);
@@ -65,33 +74,37 @@ function Button() {
     downX: 0,
     downY: 0,
   });
-  const rippleRef = useRef({ x: 0, y: 0, startedAt: -Infinity });
-
   /** Toggle knob position, 0 = OFF/left … 1 = ON/right. Starts ON per the reference video. */
-  const toggleTSpringRef = useRef(new Controller({ t: 1, config: toggleDefaults.settleSpring }));
+  const toggleTSpringRef = useRef(
+    new Controller({ t: initialToggle, config: toggleDefaults.settleSpring }),
+  );
   /** 0 = resting pill, 1 = pressed/expanded. */
   const toggleExpandSpringRef = useRef(
-    new Controller({ expand: 0, config: toggleDefaults.contractSpring }),
+    new Controller({ expand: initialExpand, config: toggleDefaults.contractSpring }),
   );
   /** 0 = gray track, 1 = green track. */
   const toggleTrackMixSpringRef = useRef(
-    new Controller({ mix: 1, config: toggleDefaults.trackMixSpring }),
+    new Controller({ mix: initialToggle, config: toggleDefaults.trackMixSpring }),
   );
   const toggleIndicatorAlphaSpringRef = useRef(
-    new Controller({ alpha: 1, config: toggleDefaults.indicatorAlphaSpring }),
+    new Controller({ alpha: captureExpandedOff ? 0 : 1, config: toggleDefaults.indicatorAlphaSpring }),
   );
   /** Committed (resting) state, and bookkeeping for the in-flight gesture. */
-  const toggleStateRef = useRef(true);
-  /** Last commanded t-spring goal — compared against the live value for the follow-error stretch. */
-  const toggleTargetTRef = useRef(1);
+  const toggleStateRef = useRef(!captureExpandedOff);
+  /** Last commanded t-spring goal, including rubber-banded endpoint pressure. */
+  const toggleTargetTRef = useRef(initialToggle);
   /** Last prospective (>midpoint) state used to retarget trackMix — avoids re-starting every frame. */
-  const toggleProspectiveRef = useRef(true);
+  const toggleProspectiveRef = useRef(!captureExpandedOff);
+  const toggleMotionRef = useRef({
+    time: performance.now(),
+    scaleX: 1,
+  });
   const toggleInteractionRef = useRef({
     isDown: false,
     pointerId: null as number | null,
     downX: 0,
     downY: 0,
-    downState: true,
+    downState: !captureExpandedOff,
   });
   const toggleA11yRef = useRef<HTMLButtonElement>(null);
 
@@ -159,7 +172,7 @@ function Button() {
     let backgroundRatio = 1;
     let disposed = false;
 
-    loadTextureFromURL(gl, '/alpine-lake-background.png')
+    loadTextureFromURL(gl, '/alpine-lake-background.png?v=27')
       .then(({ texture, ratio }) => {
         if (disposed) {
           gl.deleteTexture(texture);
@@ -258,6 +271,7 @@ function Button() {
     };
 
     const onToggleA11yKeyDown = (e: KeyboardEvent) => {
+      if (captureExpandedOff) return;
       if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
       e.preventDefault();
       triggerToggleTap();
@@ -266,6 +280,7 @@ function Button() {
     a11yButton?.addEventListener('keydown', onToggleA11yKeyDown);
 
     const onPointerDown = (e: PointerEvent) => {
+      if (captureExpandedOff) return;
       const canvasInfo = canvasInfoRef.current;
 
       // Toggle's hit area takes priority over the button's.
@@ -300,12 +315,6 @@ function Button() {
       ix.pointerId = e.pointerId;
       ix.downX = e.clientX;
       ix.downY = e.clientY;
-      rippleRef.current = {
-        x: e.clientX * canvasInfo.dpr,
-        y: (canvasInfo.height - e.clientY) * canvasInfo.dpr,
-        startedAt: performance.now(),
-      };
-
       pressScaleSpringRef.current.start({
         scale: buttonJellyConfig.pressScale,
         config: buttonJellyConfig.pressSpring,
@@ -425,7 +434,6 @@ function Button() {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       const pressScale = pressScaleSpringRef.current.get().scale;
-      const rippleAge = (performance.now() - rippleRef.current.startedAt) / 1000;
       const pos = posSpringRef.current.get();
       const baseSize = defaults.shapeWidth * pressScale;
 
@@ -461,8 +469,17 @@ function Button() {
       const trackMix = toggleTrackMixSpringRef.current.get().mix;
       const indicatorAlpha = toggleIndicatorAlphaSpringRef.current.get().alpha;
 
+      const now = performance.now();
+      const motion = toggleMotionRef.current;
+      const elapsed = Math.min((now - motion.time) / 1000, 1 / 15);
+      const deformation = toggleInteractionRef.current.isDown
+        ? knobDeformation(toggleTargetTRef.current, toggleDefaults)
+        : { scaleX: 1 };
+      const blend = 1 - Math.exp(-toggleDefaults.jelly.response * elapsed);
+      motion.scaleX += (deformation.scaleX - motion.scaleX) * blend;
+      motion.time = now;
+
       const knobBox = knobSize(expand, toggleDefaults);
-      const stretch = knobStretch(toggleTargetTRef.current, t, toggleDefaults);
       const knobCenter = [
         toggleHomePos.x + knobCenterOffsetX(t, toggleDefaults) * canvasInfo.dpr,
         toggleHomePos.y,
@@ -481,6 +498,9 @@ function Button() {
         u_dpr: canvasInfo.dpr,
         u_blurWeights: blurWeightsRef.current,
         u_blurRadius: defaults.blurRadius,
+        u_shadowExpand: defaults.shadowExpand,
+        u_shadowFactor: defaults.shadowFactor / 100,
+        u_shadowPosition: [-defaults.shadowPosition.x, -defaults.shadowPosition.y],
         u_mouse: center,
         u_mouseSpring: center,
         u_shape1Pos: [rearX, rearY],
@@ -492,8 +512,6 @@ function Button() {
           0,
           Math.min(1, (pressScale - 1) / (buttonJellyConfig.pressScale - 1)),
         ),
-        u_rippleOrigin: [rippleRef.current.x, rippleRef.current.y],
-        u_rippleAge: rippleAge < 0.7 ? rippleAge : -1,
         u_glareAngle: (defaults.glareAngle * Math.PI) / 180,
         u_showShape1: 0,
         u_togCenter: [toggleHomePos.x, toggleHomePos.y],
@@ -508,7 +526,9 @@ function Button() {
         u_togRingAlpha: indicatorAlpha * (1 - trackMix) * toggleDefaults.ringColor[3],
         u_togKnobCenter: knobCenter,
         u_togKnobSize: [knobBox.width, knobBox.height],
-        u_togKnobStretch: stretch,
+        u_togKnobStretch: motion.scaleX,
+        u_togContentScale: glassContentScale(expand, toggleDefaults),
+        u_togContentScaleX: glassContentScaleX(expand, t, toggleDefaults),
         u_togKnobColor: toggleDefaults.knobColor,
         // Solid white at rest, crossfades to clear glass as the knob expands (press),
         // and back to frosted/solid as it contracts (release) — the crossfade over the
@@ -519,13 +539,10 @@ function Button() {
 
       active.render({
         bgPass: {
-          u_bgType: defaults.bgType,
+          u_bgType: pictureBackgroundRef.current ? 12 : defaults.bgType,
           ...(backgroundTexture ? { u_bgTexture: backgroundTexture } : {}),
           u_bgTextureRatio: backgroundRatio,
           u_bgTextureReady: backgroundTexture ? 1 : 0,
-          u_shadowExpand: defaults.shadowExpand,
-          u_shadowFactor: defaults.shadowFactor / 100,
-          u_shadowPosition: [-defaults.shadowPosition.x, -defaults.shadowPosition.y],
         },
         mainPass: {
           u_tint: [
@@ -536,7 +553,7 @@ function Button() {
           ],
           u_refThickness: defaults.refThickness,
           u_refFactor: defaults.refFactor,
-          u_refDispersion: defaults.refDispersion,
+          u_refDispersion: 0,
           u_refFresnelRange: defaults.refFresnelRange,
           u_refFresnelHardness: defaults.refFresnelHardness / 100,
           u_refFresnelFactor: defaults.refFresnelFactor / 100,
@@ -558,7 +575,7 @@ function Button() {
           u_togRefThickness: toggleDefaults.glass.refThickness,
           u_togRefStrength: toggleDefaults.glass.refStrength,
           u_refFactor: defaults.refFactor,
-          u_refDispersion: defaults.refDispersion,
+          u_refDispersion: 0,
           u_refFresnelRange: defaults.refFresnelRange,
           u_refFresnelHardness: defaults.refFresnelHardness / 100,
           u_refFresnelFactor: defaults.refFresnelFactor / 100,
@@ -607,10 +624,23 @@ function Button() {
       renderer.dispose();
       rendererRef.current = null;
     };
-  }, []);
+  }, [captureExpandedOff]);
 
   return (
     <div className="button-stage">
+      {!captureExpandedOff && (
+        <label className="background-switch">
+          <input
+            type="checkbox"
+            checked={pictureBackground}
+            onChange={(event) => {
+              pictureBackgroundRef.current = event.target.checked;
+              setPictureBackground(event.target.checked);
+            }}
+          />
+          <span>Picture</span>
+        </label>
+      )}
       <canvas ref={canvasRef} aria-label="Edit" role="button" />
       <svg
         ref={iconRef}
@@ -625,7 +655,7 @@ function Button() {
         ref={toggleA11yRef}
         type="button"
         role="switch"
-        aria-checked="true"
+        aria-checked={captureExpandedOff ? 'false' : 'true'}
         aria-label="Liquid glass toggle"
         className="toggle-hit"
         style={{

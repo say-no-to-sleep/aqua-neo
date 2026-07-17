@@ -52,10 +52,29 @@ export function knobSize(expand: number, G: ToggleGeometry): { width: number; he
   };
 }
 
-/** Extremely subtle horizontal jelly stretch from how far the follow spring lags its drag target. */
-export function knobStretch(tTarget: number, tSpring: number, G: ToggleGeometry): number {
-  const err = Math.min(Math.abs(tTarget - tSpring), 1);
-  return 1.0 + err * 0.06;
+/** Horizontal liquid squeeze only while pressing beyond either end. */
+export function knobDeformation(
+  tTarget: number,
+  G: ToggleGeometry,
+): { scaleX: number } {
+  const overscrollT = Math.max(0, -tTarget, tTarget - 1);
+  const overscrollCss = overscrollT * travelPx(G) * 2;
+  const pressure = Math.min(overscrollCss / G.jelly.fullPressurePx, 1);
+  return {
+    scaleX: 1 - pressure * G.jelly.horizontalCompression,
+  };
+}
+
+/** Press expansion drives the independent concentric background squeeze inside the glass. */
+export function glassContentScale(expand: number, G: ToggleGeometry): number {
+  return lerp(1, G.glass.contentScale, Math.max(0, Math.min(1, expand)));
+}
+
+/** Keep the projected track open through mid-travel while preserving endpoint concentricity. */
+export function glassContentScaleX(expand: number, t: number, G: ToggleGeometry): number {
+  const clampedT = Math.max(0, Math.min(1, t));
+  const endpointWeight = Math.abs(2 * clampedT - 1);
+  return lerp(1, glassContentScale(expand, G), endpointWeight);
 }
 
 /** Fixed bar/ring centers, css px offset from track center — sit in the region the knob uncovers. */

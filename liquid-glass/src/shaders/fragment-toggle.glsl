@@ -27,8 +27,13 @@ uniform float u_mergeRate;
 uniform vec2 u_togKnobCenter;
 uniform vec2 u_togKnobSize;
 uniform float u_togKnobStretch;
+uniform float u_togContentScale;
+uniform float u_togContentScaleX;
 uniform vec3 u_togKnobColor;
 uniform float u_togKnobSolidity;
+uniform float u_togKnobShadowFactor;
+uniform float u_shadowExpand;
+uniform vec2 u_shadowPosition;
 
 // Knob-specific glass tuning (see defaults.ts toggleDefaults.glass).
 uniform float u_togRefThickness; // css px — rim band thickness
@@ -63,18 +68,19 @@ vec4 getTextureDispersion(
   sampler2D tex1,
   sampler2D tex2,
   float mixRate,
+  vec2 sampleUv,
   vec2 offset,
   float factor
 ) {
   vec4 pixel = vec4(1.0);
 
-  float bgR = texture(tex1, v_uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
-  float bgG = texture(tex1, v_uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
-  float bgB = texture(tex1, v_uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  float bgR = texture(tex1, sampleUv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float bgG = texture(tex1, sampleUv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float bgB = texture(tex1, sampleUv + offset * (1.0 - (N_B - 1.0) * factor)).b;
 
-  float blurR = texture(tex2, v_uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
-  float blurG = texture(tex2, v_uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
-  float blurB = texture(tex2, v_uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  float blurR = texture(tex2, sampleUv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float blurG = texture(tex2, sampleUv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float blurB = texture(tex2, sampleUv + offset * (1.0 - (N_B - 1.0) * factor)).b;
 
   pixel.r = mix(bgR, blurR, mixRate);
   pixel.g = mix(bgG, blurG, mixRate);
@@ -96,51 +102,58 @@ float knobSDF(vec2 p) {
 
 void main() {
   vec4 outColor = texture(u_prevPass, v_uv);
-
   float knobDist = knobSDF(gl_FragCoord.xy);
   float knobCoverage = 1.0 - smoothstep(-u_dpr, u_dpr, knobDist);
-
+  vec2 knobShadowCenter = u_togKnobCenter - u_shadowPosition * u_dpr;
+  float knobShadowShape = roundedRectSDF(
+    gl_FragCoord.xy,
+    knobShadowCenter,
+    u_togKnobSize.x * u_togKnobStretch,
+    u_togKnobSize.y,
+    u_togKnobSize.y * 0.5,
+    2.0
+  );
+  float knobOutside = smoothstep(-u_dpr, u_dpr, knobDist);
+  float knobShadowDistance = max(knobShadowShape, 0.0) / u_dpr;
+  float knobContactRing = exp(-pow(knobShadowDistance / 14.0, 2.0)) * 0.11;
+  float knobAmbientHalo = exp(-pow(knobShadowDistance / u_shadowExpand, 2.0)) * 0.035;
+  float knobShadow = (knobContactRing + knobAmbientHalo) * knobOutside *
+    clamp(u_togKnobShadowFactor / 0.3, 0.0, 1.0);
+  outColor.rgb = mix(outColor.rgb, vec3(0.04), clamp(knobShadow, 0.0, 0.16));
   vec3 glassColor = u_togKnobColor;
+  vec2 surfaceNormal = vec2(0.0, 1.0);
+  float cssInside = -knobDist / u_dpr;
+  float bevel = 0.0;
 
   if (knobCoverage > 0.001) {
     vec2 res1x = u_resolution / u_dpr;
-
-    // Central-difference normal of the knob SDF, physical px taps.
-    vec2 normal = normalize(
+    surfaceNormal = normalize(
       vec2(
         knobSDF(gl_FragCoord.xy + vec2(1.0, 0.0)) - knobSDF(gl_FragCoord.xy - vec2(1.0, 0.0)),
         knobSDF(gl_FragCoord.xy + vec2(0.0, 1.0)) - knobSDF(gl_FragCoord.xy - vec2(0.0, 1.0))
       )
     );
-
-    // cssInside: depth inside the knob in css px (positive inside, 0 at the edge).
-    float cssInside = -knobDist / u_dpr;
-    // Same normalized-distance convention as fragment-main's `merged`.
-    float mergedEquiv = knobDist / u_resolution.y;
-
-    // Refraction edge factor (lens physics), same formula as the button's STEP<=9 branch.
+    float depth = clamp(cssInside / u_togRefThickness, 0.0, 1.0);
+    bevel = 1.0 - smoothstep(0.0, 1.0, depth);
     float x_R_ratio = 1.0 - cssInside / u_togRefThickness;
     float thetaI = safeAsin(pow(x_R_ratio, 2.0));
     float thetaT = safeAsin(1.0 / u_refFactor * sin(thetaI));
     float edgeFactor = -1.0 * tan(thetaT - thetaI);
-    if (cssInside >= u_togRefThickness) {
-      edgeFactor = 0.0;
-    }
+    if (cssInside >= u_togRefThickness) edgeFactor = 0.0;
 
-    vec4 blurredPixel;
-
+    vec2 knobCenterUv = u_togKnobCenter / u_resolution;
+    vec2 contentScale = max(vec2(u_togContentScaleX, u_togContentScale), vec2(0.001));
+    vec2 sampleUv = knobCenterUv + (v_uv - knobCenterUv) / contentScale;
+    vec4 refracted;
     if (edgeFactor <= 0.0) {
-      // Deep interior: magnified/blurred track color, no edge refraction.
-      blurredPixel = texture(u_blurredBg, v_uv);
-      glassColor = mix(blurredPixel, vec4(u_tint.r, u_tint.g, u_tint.b, 1.0), u_tint.a * 0.8).rgb;
+      refracted = texture(u_blurredBg, sampleUv);
     } else {
-      float edgeH = cssInside / u_togRefThickness;
-
-      blurredPixel = getTextureDispersion(
+      refracted = getTextureDispersion(
         u_bg,
         u_blurredBg,
-        u_blurEdge > 0 ? 1.0 : edgeH,
-        -normal *
+        u_blurEdge > 0 ? 1.0 : depth,
+        sampleUv,
+        -surfaceNormal *
           edgeFactor *
           u_togRefStrength *
           u_dpr *
@@ -150,97 +163,34 @@ void main() {
           ),
         u_refDispersion
       );
-
-      vec4 baseColor = mix(
-        blurredPixel,
-        vec4(u_tint.r, u_tint.g, u_tint.b, 1.0),
-        u_tint.a * 0.8
-      );
-
-      // Fresnel brightening near the rim.
-      float fresnelFactor = clamp(
-        pow(
-          1.0 +
-            mergedEquiv * res1x.y / 1500.0 * pow(500.0 / u_refFresnelRange, 2.0) +
-            u_refFresnelHardness,
-          5.0
-        ),
-        0.0,
-        1.0
-      );
-
-      vec3 fresnelTintLCH = SRGB_TO_LCH(
-        mix(vec3(1.0), vec3(u_tint.r, u_tint.g, u_tint.b), u_tint.a * 0.5)
-      );
-      fresnelTintLCH.x += 20.0 * fresnelFactor * u_refFresnelFactor;
-      fresnelTintLCH.x = clamp(fresnelTintLCH.x, 0.0, 100.0);
-
-      baseColor = mix(
-        baseColor,
-        vec4(LCH_TO_SRGB(fresnelTintLCH), 1.0),
-        fresnelFactor * u_refFresnelFactor * 0.7
-      );
-
-      // Directional specular glare.
-      float glareGeoFactor = clamp(
-        pow(
-          1.0 +
-            mergedEquiv * res1x.y / 1500.0 * pow(500.0 / u_glareRange, 2.0) +
-            u_glareHardness,
-          5.0
-        ),
-        0.0,
-        1.0
-      );
-
-      float glareAngle = (vec2ToAngle(normal) - PI / 4.0 + u_glareAngle) * 2.0;
-      int glareFarside = 0;
-      if (
-        glareAngle > PI * (2.0 - 0.5) && glareAngle < PI * (4.0 - 0.5) ||
-        glareAngle < PI * (0.0 - 0.5)
-      ) {
-        glareFarside = 1;
-      }
-      float glareAngleFactor =
-        (0.5 + sin(glareAngle) * 0.5) *
-        (glareFarside == 1
-          ? 1.2 * u_glareOppositeFactor
-          : 1.2) *
-        u_glareFactor;
-      glareAngleFactor = clamp(pow(glareAngleFactor, 0.1 + u_glareConvergence * 2.0), 0.0, 1.0);
-
-      vec3 glareTintLCH = SRGB_TO_LCH(
-        mix(blurredPixel.rgb, vec3(u_tint.r, u_tint.g, u_tint.b), u_tint.a * 0.5)
-      );
-      glareTintLCH.x += 150.0 * glareAngleFactor * glareGeoFactor;
-      glareTintLCH.y += 30.0 * glareAngleFactor * glareGeoFactor;
-      glareTintLCH.x = clamp(glareTintLCH.x, 0.0, 120.0);
-
-      baseColor = mix(
-        baseColor,
-        vec4(LCH_TO_SRGB(glareTintLCH), 1.0),
-        glareAngleFactor * glareGeoFactor
-      );
-
-      glassColor = baseColor.rgb;
     }
 
-    // Directional glass rim: dark C-band on the far edge, bright highlight where it catches light.
-    float rimDistance = abs(cssInside);
-    if (rimDistance < 2.8) {
-      float rim = 1.0 - smoothstep(0.0, 2.8, rimDistance);
-      vec2 lightDirection = normalize(vec2(-0.7, 0.7));
-      float rimLight = pow(max(dot(normal, lightDirection), 0.0), 2.0);
-      float rimShade = pow(max(dot(normal, -lightDirection), 0.0), 2.0);
-      float darkRimOpacity = rim * (0.10 + 0.22 * rimShade);
-      glassColor = mix(glassColor, vec3(0.06), darkRimOpacity);
-      glassColor = mix(glassColor, vec3(1.0), rim * 0.38 * rimLight);
-    }
+    float smokeOpacity = mix(0.20, 0.10, smoothstep(0.0, 1.0, depth));
+    vec3 smokeTint = mix(vec3(112.0 / 255.0), u_tint.rgb, depth);
+    glassColor = mix(refracted.rgb, smokeTint, smokeOpacity);
+    float vertical = abs(surfaceNormal.y);
+    glassColor = mix(glassColor, vec3(0.025), bevel * pow(abs(surfaceNormal.x), 2.0) * 0.10);
+    glassColor = mix(glassColor, vec3(1.0), bevel * pow(vertical, 2.0) * 0.10);
+    glassColor = mix(
+      glassColor,
+      vec3(1.0),
+      (1.0 - smoothstep(0.0, 2.8, max(cssInside, 0.0))) * pow(vertical, 12.0) * 0.14
+    );
   }
 
-  // STAGE 2: glass material replaces the solid fill; u_togKnobSolidity crossfades solid <-> glass.
+  float glassPhase = 1.0 - u_togKnobSolidity;
   vec3 finalKnobColor = mix(glassColor, u_togKnobColor, u_togKnobSolidity);
   outColor.rgb = mix(outColor.rgb, finalKnobColor, knobCoverage);
+  float outlineDistance = abs(knobDist) / u_dpr;
+  float outline = 1.0 - smoothstep(0.0, 2.0, outlineDistance);
+  float outlineLight = pow(abs(surfaceNormal.y), 2.0);
+  outColor.rgb = mix(
+    outColor.rgb,
+    vec3(0.0),
+    outline * mix(0.50, 0.26, outlineLight) * glassPhase
+  );
+  float outerGlint = outline * pow(abs(surfaceNormal.y), 12.0) * 0.14 * glassPhase;
+  outColor.rgb = mix(outColor.rgb, vec3(1.0), outerGlint);
 
   fragColor = outColor;
 }

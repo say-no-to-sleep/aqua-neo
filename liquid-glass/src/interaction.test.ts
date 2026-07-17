@@ -10,7 +10,15 @@ import {
   tetherTarget,
   toggleHome,
 } from './interaction';
-import { hitTestToggle, knobCenterOffsetX, tFromDrag, travelPx } from './toggle';
+import {
+  glassContentScale,
+  glassContentScaleX,
+  hitTestToggle,
+  knobCenterOffsetX,
+  knobDeformation,
+  tFromDrag,
+  travelPx,
+} from './toggle';
 import { toggleDefaults } from './defaults';
 
 const canvasCenter = homeCanvas(800, 600, 2);
@@ -63,3 +71,35 @@ if (tFromDrag(1, 10000, toggleDefaults) >= linearOvershoot) {
 }
 if (!hitTestToggle(400, 300 + 90, 800, 600)) throw new Error('toggle hit test missed its own center');
 if (hitTestToggle(400, 300 - 90, 800, 600)) throw new Error('toggle hit test reached up to the button');
+
+// Toggle liquid deformation: end pressure squeezes horizontally without changing height.
+const pressuredKnob = knobDeformation(
+  1 + toggleDefaults.jelly.fullPressurePx / (travel * 2),
+  toggleDefaults,
+);
+if (pressuredKnob.scaleX !== 1 - toggleDefaults.jelly.horizontalCompression) {
+  throw new Error('overscrolled toggle did not squeeze horizontally');
+}
+if (
+  glassContentScale(-1, toggleDefaults) !== 1 ||
+  glassContentScale(0, toggleDefaults) !== 1 ||
+  glassContentScale(0.5, toggleDefaults) !== 0.885 ||
+  glassContentScale(1, toggleDefaults) !== 0.77 ||
+  glassContentScale(2, toggleDefaults) !== 0.77
+) {
+  throw new Error('glass content scale did not clamp and interpolate correctly');
+}
+if (
+  glassContentScaleX(0, 0.5, toggleDefaults) !== 1 ||
+  glassContentScaleX(1, -0.5, toggleDefaults) !== 0.77 ||
+  glassContentScaleX(1, 0, toggleDefaults) !== 0.77 ||
+  glassContentScaleX(1, 0.25, toggleDefaults) !== 0.885 ||
+  glassContentScaleX(1, 0.5, toggleDefaults) !== 1 ||
+  glassContentScaleX(1, 0.75, toggleDefaults) !== 0.885 ||
+  glassContentScaleX(1, 1, toggleDefaults) !== 0.77 ||
+  glassContentScaleX(1, 1.5, toggleDefaults) !== 0.77 ||
+  glassContentScaleX(0.5, 0, toggleDefaults) !== 0.885 ||
+  glassContentScaleX(0.5, 0.5, toggleDefaults) !== 1
+) {
+  throw new Error('glass content X scale did not stay open through mid-travel');
+}

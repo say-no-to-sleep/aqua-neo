@@ -19,6 +19,34 @@ body,
   height: 100%;
 }
 
+.background-switch {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 11px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 999px;
+  color: rgb(245 245 247);
+  background: rgb(20 20 22 / 70%);
+  backdrop-filter: blur(12px);
+  font: 500 13px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.background-switch input {
+  margin: 0;
+  accent-color: rgb(83 83 86);
+}
+
+.background-switch:focus-within {
+  outline: 2px solid rgb(255 255 255 / 70%);
+  outline-offset: 2px;
+}
+
 canvas {
   position: absolute;
   inset: 0;

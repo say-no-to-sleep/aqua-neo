@@ -1,4 +1,5 @@
 export function computeGaussianKernelByRadius(radius: number) {
+  if (radius <= 0) return [1];
   const sigma = radius / 3.0;
   const kernel = [];
   let sum = 0;
