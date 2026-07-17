@@ -2,21 +2,35 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Controller } from '@react-spring/web';
 import { loadTextureFromURL, MultiPassRenderer } from './utils/GLUtils';
 import { computeGaussianKernelByRadius } from './utils';
-import { defaults } from './defaults';
+import { defaults, toggleDefaults } from './defaults';
 import {
+  buttonHome,
   ellipseFromPull,
   hitTestCircle,
-  homeCanvas,
   iconColorForRgb,
   buttonJellyConfig,
   tetherTarget,
+  toggleHome,
 } from './interaction';
+import {
+  barCenterOffsetX,
+  hitTestToggle,
+  knobCenterOffsetX,
+  knobSize,
+  knobStretch,
+  prospectiveState,
+  releaseTarget,
+  ringCenterOffsetX,
+  tFromDrag,
+  toggleJellyConfig,
+} from './toggle';
 
 import VertexShader from './shaders/vertex.glsl';
 import FragmentBgShader from './shaders/fragment-bg.glsl';
 import FragmentBgVblurShader from './shaders/fragment-bg-vblur.glsl';
 import FragmentBgHblurShader from './shaders/fragment-bg-hblur.glsl';
 import FragmentMainShader from './shaders/fragment-main.glsl';
+import FragmentToggleShader from './shaders/fragment-toggle.glsl';
 
 function Button() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,6 +67,34 @@ function Button() {
   });
   const rippleRef = useRef({ x: 0, y: 0, startedAt: -Infinity });
 
+  /** Toggle knob position, 0 = OFF/left … 1 = ON/right. Starts ON per the reference video. */
+  const toggleTSpringRef = useRef(new Controller({ t: 1, config: toggleDefaults.settleSpring }));
+  /** 0 = resting pill, 1 = pressed/expanded. */
+  const toggleExpandSpringRef = useRef(
+    new Controller({ expand: 0, config: toggleDefaults.contractSpring }),
+  );
+  /** 0 = gray track, 1 = green track. */
+  const toggleTrackMixSpringRef = useRef(
+    new Controller({ mix: 1, config: toggleDefaults.trackMixSpring }),
+  );
+  const toggleIndicatorAlphaSpringRef = useRef(
+    new Controller({ alpha: 1, config: toggleDefaults.indicatorAlphaSpring }),
+  );
+  /** Committed (resting) state, and bookkeeping for the in-flight gesture. */
+  const toggleStateRef = useRef(true);
+  /** Last commanded t-spring goal — compared against the live value for the follow-error stretch. */
+  const toggleTargetTRef = useRef(1);
+  /** Last prospective (>midpoint) state used to retarget trackMix — avoids re-starting every frame. */
+  const toggleProspectiveRef = useRef(true);
+  const toggleInteractionRef = useRef({
+    isDown: false,
+    pointerId: null as number | null,
+    downX: 0,
+    downY: 0,
+    downState: true,
+  });
+  const toggleA11yRef = useRef<HTMLButtonElement>(null);
+
   useLayoutEffect(() => {
     const applySize = () => {
       const info = {
@@ -68,7 +110,7 @@ function Button() {
       }
       // Keep resting mass at new center if not interacting
       if (!interactionRef.current.isDown) {
-        const home = homeCanvas(info.width, info.height, info.dpr);
+        const home = buttonHome(info.width, info.height, info.dpr);
         posSpringRef.current.set({ x: home.x, y: home.y });
       }
     };
@@ -103,6 +145,11 @@ function Button() {
         name: 'mainPass',
         shader: { vertex: VertexShader, fragment: FragmentMainShader },
         inputs: { u_blurredBg: 'hBlurPass', u_bg: 'bgPass' },
+      },
+      {
+        name: 'togglePass',
+        shader: { vertex: VertexShader, fragment: FragmentToggleShader },
+        inputs: { u_prevPass: 'mainPass', u_bg: 'bgPass', u_blurredBg: 'hBlurPass' },
         outputToScreen: true,
       },
     ]);
@@ -130,7 +177,7 @@ function Button() {
     renderer.resize(w0, h0);
     renderer.setUniform('u_resolution', [w0, h0]);
 
-    const home = homeCanvas(info.width, info.height, info.dpr);
+    const home = buttonHome(info.width, info.height, info.dpr);
     posSpringRef.current.set({ x: home.x, y: home.y });
 
     const releaseInteraction = () => {
@@ -140,7 +187,7 @@ function Button() {
       ix.pointerId = null;
 
       const ci = canvasInfoRef.current;
-      const h = homeCanvas(ci.width, ci.height, ci.dpr);
+      const h = buttonHome(ci.width, ci.height, ci.dpr);
 
       pressScaleSpringRef.current.start({
         scale: 1,
@@ -153,8 +200,94 @@ function Button() {
       });
     };
 
+    /** Commit t/trackMix to a final resting side and sync the a11y switch. */
+    const settleToggleTo = (finalOn: boolean) => {
+      toggleStateRef.current = finalOn;
+      toggleProspectiveRef.current = finalOn;
+      toggleTargetTRef.current = finalOn ? 1 : 0;
+      toggleTSpringRef.current.start({
+        t: finalOn ? 1 : 0,
+        config: toggleDefaults.settleSpring,
+      });
+      toggleTrackMixSpringRef.current.start({
+        mix: finalOn ? 1 : 0,
+        config: toggleDefaults.trackMixSpring,
+      });
+      toggleA11yRef.current?.setAttribute('aria-checked', String(finalOn));
+    };
+
+    const releaseToggleInteraction = (isTap: boolean) => {
+      const ix = toggleInteractionRef.current;
+      if (!ix.isDown) return;
+      ix.isDown = false;
+      ix.pointerId = null;
+
+      const finalOn = releaseTarget(toggleTSpringRef.current.get().t, isTap, ix.downState);
+      settleToggleTo(finalOn);
+
+      toggleExpandSpringRef.current.start({ expand: 0, config: toggleDefaults.contractSpring });
+      toggleIndicatorAlphaSpringRef.current.start({
+        alpha: 1,
+        config: toggleDefaults.indicatorAlphaSpring,
+      });
+    };
+
+    /** Keyboard activation: no real down/up pair, so hold the puffed pose briefly before settling. */
+    const triggerToggleTap = () => {
+      const tix = toggleInteractionRef.current;
+      if (tix.isDown) return;
+      const downState = toggleStateRef.current;
+      // Borrow the pointer gesture's isDown flag as a lock — blocks re-entrant taps (double
+      // Enter within the hold window) and defers to a real pointer gesture if one starts.
+      tix.isDown = true;
+      toggleExpandSpringRef.current.start({ expand: 1, config: toggleDefaults.expandSpring });
+      toggleIndicatorAlphaSpringRef.current.start({
+        alpha: 0,
+        config: toggleDefaults.indicatorAlphaSpring,
+      });
+      window.setTimeout(() => {
+        if (tix.pointerId !== null) return; // a real pointer gesture took over meanwhile
+        tix.isDown = false;
+        settleToggleTo(!downState);
+        toggleExpandSpringRef.current.start({ expand: 0, config: toggleDefaults.contractSpring });
+        toggleIndicatorAlphaSpringRef.current.start({
+          alpha: 1,
+          config: toggleDefaults.indicatorAlphaSpring,
+        });
+      }, 140);
+    };
+
+    const onToggleA11yKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+      e.preventDefault();
+      triggerToggleTap();
+    };
+    const a11yButton = toggleA11yRef.current;
+    a11yButton?.addEventListener('keydown', onToggleA11yKeyDown);
+
     const onPointerDown = (e: PointerEvent) => {
       const canvasInfo = canvasInfoRef.current;
+
+      // Toggle's hit area takes priority over the button's.
+      if (hitTestToggle(e.clientX, e.clientY, canvasInfo.width, canvasInfo.height)) {
+        e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
+
+        const tix = toggleInteractionRef.current;
+        tix.isDown = true;
+        tix.pointerId = e.pointerId;
+        tix.downX = e.clientX;
+        tix.downY = e.clientY;
+        tix.downState = toggleStateRef.current;
+
+        toggleExpandSpringRef.current.start({ expand: 1, config: toggleDefaults.expandSpring });
+        toggleIndicatorAlphaSpringRef.current.start({
+          alpha: 0,
+          config: toggleDefaults.indicatorAlphaSpring,
+        });
+        return;
+      }
+
       if (!hitTestCircle(e.clientX, e.clientY, canvasInfo.width, canvasInfo.height)) {
         return;
       }
@@ -181,6 +314,25 @@ function Button() {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      const tix = toggleInteractionRef.current;
+      if (tix.isDown && tix.pointerId === e.pointerId) {
+        const dxCss = e.clientX - tix.downX;
+        const t0 = tix.downState ? 1 : 0;
+        const t = tFromDrag(t0, dxCss, toggleDefaults);
+        toggleTargetTRef.current = t;
+        toggleTSpringRef.current.start({ t, config: toggleJellyConfig.followSpring });
+
+        const prospective = prospectiveState(t);
+        if (prospective !== toggleProspectiveRef.current) {
+          toggleProspectiveRef.current = prospective;
+          toggleTrackMixSpringRef.current.start({
+            mix: prospective ? 1 : 0,
+            config: toggleDefaults.trackMixSpring,
+          });
+        }
+        return;
+      }
+
       const ix = interactionRef.current;
       if (!ix.isDown || ix.pointerId !== e.pointerId) return;
 
@@ -202,6 +354,18 @@ function Button() {
     };
 
     const onPointerUp = (e: PointerEvent) => {
+      const tix = toggleInteractionRef.current;
+      if (tix.isDown && tix.pointerId === e.pointerId) {
+        try {
+          canvas.releasePointerCapture(e.pointerId);
+        } catch {
+          /* already released */
+        }
+        const moved = Math.hypot(e.clientX - tix.downX, e.clientY - tix.downY);
+        releaseToggleInteraction(moved < toggleDefaults.tapSlop);
+        return;
+      }
+
       const ix = interactionRef.current;
       if (!ix.isDown || ix.pointerId !== e.pointerId) return;
       try {
@@ -213,6 +377,12 @@ function Button() {
     };
 
     const onPointerCancel = (e: PointerEvent) => {
+      const tix = toggleInteractionRef.current;
+      if (tix.isDown && tix.pointerId === e.pointerId) {
+        releaseToggleInteraction(false);
+        return;
+      }
+
       const ix = interactionRef.current;
       if (!ix.isDown || ix.pointerId !== e.pointerId) return;
       releaseInteraction();
@@ -261,7 +431,7 @@ function Button() {
 
       // Rear mass trails the front at rearFollow, so the back edge advances too
       // and the blob stretches only by the remaining fraction (stays stiff).
-      const homePos = homeCanvas(canvasInfo.width, canvasInfo.height, canvasInfo.dpr);
+      const homePos = buttonHome(canvasInfo.width, canvasInfo.height, canvasInfo.dpr);
       const k = buttonJellyConfig.rearFollow;
       const rearX = homePos.x + (pos.x - homePos.x) * k;
       const rearY = homePos.y + (pos.y - homePos.y) * k;
@@ -284,6 +454,28 @@ function Button() {
           `scale(${scaleX}, ${scaleY}) rotate(${-angle}rad)`;
       }
 
+      // --- Toggle: read springs, derive knob/indicator geometry, push u_tog* uniforms ---
+      const toggleHomePos = toggleHome(canvasInfo.width, canvasInfo.height, canvasInfo.dpr);
+      const t = toggleTSpringRef.current.get().t;
+      const expand = toggleExpandSpringRef.current.get().expand;
+      const trackMix = toggleTrackMixSpringRef.current.get().mix;
+      const indicatorAlpha = toggleIndicatorAlphaSpringRef.current.get().alpha;
+
+      const knobBox = knobSize(expand, toggleDefaults);
+      const stretch = knobStretch(toggleTargetTRef.current, t, toggleDefaults);
+      const knobCenter = [
+        toggleHomePos.x + knobCenterOffsetX(t, toggleDefaults) * canvasInfo.dpr,
+        toggleHomePos.y,
+      ];
+      const barCenter = [
+        toggleHomePos.x + barCenterOffsetX(toggleDefaults) * canvasInfo.dpr,
+        toggleHomePos.y,
+      ];
+      const ringCenter = [
+        toggleHomePos.x + ringCenterOffsetX(toggleDefaults) * canvasInfo.dpr,
+        toggleHomePos.y,
+      ];
+
       active.setUniforms({
         u_resolution: [w, h],
         u_dpr: canvasInfo.dpr,
@@ -304,6 +496,25 @@ function Button() {
         u_rippleAge: rippleAge < 0.7 ? rippleAge : -1,
         u_glareAngle: (defaults.glareAngle * Math.PI) / 180,
         u_showShape1: 0,
+        u_togCenter: [toggleHomePos.x, toggleHomePos.y],
+        u_togTrackSize: [toggleDefaults.trackWidth, toggleDefaults.trackHeight],
+        u_togTrackMix: trackMix,
+        u_togOnColor: toggleDefaults.onColor,
+        u_togOffColor: toggleDefaults.offColor,
+        u_togBarCenter: barCenter,
+        u_togBarAlpha: indicatorAlpha * trackMix,
+        u_togRingCenter: ringCenter,
+        u_togRingColor: toggleDefaults.ringColor,
+        u_togRingAlpha: indicatorAlpha * (1 - trackMix) * toggleDefaults.ringColor[3],
+        u_togKnobCenter: knobCenter,
+        u_togKnobSize: [knobBox.width, knobBox.height],
+        u_togKnobStretch: stretch,
+        u_togKnobColor: toggleDefaults.knobColor,
+        // Solid white at rest, crossfades to clear glass as the knob expands (press),
+        // and back to frosted/solid as it contracts (release) — the crossfade over the
+        // blurred background is what reads as "frost" mid-contraction.
+        u_togKnobSolidity: Math.max(0, Math.min(1, 1 - expand)),
+        u_togKnobShadowFactor: 0.1 + 0.2 * expand,
       });
 
       active.render({
@@ -337,6 +548,27 @@ function Button() {
           u_blurEdge: defaults.blurEdge ? 1 : 0,
           STEP: defaults.step,
         },
+        togglePass: {
+          u_tint: [
+            defaults.tint.r / 255,
+            defaults.tint.g / 255,
+            defaults.tint.b / 255,
+            defaults.tint.a,
+          ],
+          u_togRefThickness: toggleDefaults.glass.refThickness,
+          u_togRefStrength: toggleDefaults.glass.refStrength,
+          u_refFactor: defaults.refFactor,
+          u_refDispersion: defaults.refDispersion,
+          u_refFresnelRange: defaults.refFresnelRange,
+          u_refFresnelHardness: defaults.refFresnelHardness / 100,
+          u_refFresnelFactor: defaults.refFresnelFactor / 100,
+          u_glareRange: defaults.glareRange,
+          u_glareHardness: defaults.glareHardness / 100,
+          u_glareConvergence: defaults.glareConvergence / 100,
+          u_glareOppositeFactor: defaults.glareOppositeFactor / 100,
+          u_glareFactor: defaults.glareFactor / 100,
+          u_blurEdge: defaults.blurEdge ? 1 : 0,
+        },
       });
 
       if (icon && !interactionRef.current.isDown && ++contrastFrame % 3 === 0) {
@@ -364,8 +596,13 @@ function Button() {
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('pointercancel', onPointerCancel);
+      a11yButton?.removeEventListener('keydown', onToggleA11yKeyDown);
       pressScaleSpringRef.current.stop();
       posSpringRef.current.stop();
+      toggleTSpringRef.current.stop();
+      toggleExpandSpringRef.current.stop();
+      toggleTrackMixSpringRef.current.stop();
+      toggleIndicatorAlphaSpringRef.current.stop();
       if (backgroundTexture) gl.deleteTexture(backgroundTexture);
       renderer.dispose();
       rendererRef.current = null;
@@ -384,6 +621,19 @@ function Button() {
         <path d="M18 6H9a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4v-9" />
         <path d="m14 22 2.8-.6L27 11.2a2.3 2.3 0 0 0-3.2-3.2L13.6 18.2Z" />
       </svg>
+      <button
+        ref={toggleA11yRef}
+        type="button"
+        role="switch"
+        aria-checked="true"
+        aria-label="Liquid glass toggle"
+        className="toggle-hit"
+        style={{
+          top: `calc(50% + ${defaults.layout.toggleDrop}px)`,
+          width: `${toggleDefaults.trackWidth}px`,
+          height: `${toggleDefaults.trackHeight}px`,
+        }}
+      />
     </div>
   );
 }
