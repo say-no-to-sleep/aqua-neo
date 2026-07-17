@@ -65,7 +65,7 @@ export const toggleDefaults = {
   contractSpring: { mass: 1, tension: 300, friction: 24 },
   trackMixSpring: { mass: 1, tension: 300, friction: 26 },
   indicatorAlphaSpring: { mass: 1, tension: 500, friction: 34 },
-  /** Knob liquid-glass material (STAGE 2). Reuses the button's u_ref*/u_glare* uniforms
+  /** Knob liquid-glass material (STAGE 2). Reuses the button's u_ref/u_glare uniforms
    * for shared look, plus these knob-specific overrides. */
   glass: {
     /** Rim band thickness in css px — thicker than the button's 20 so the knob's
