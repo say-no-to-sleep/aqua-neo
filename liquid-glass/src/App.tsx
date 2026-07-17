@@ -354,7 +354,7 @@ function Button() {
         canvasInfo.width,
         canvasInfo.height,
         canvasInfo.dpr,
-        buttonJellyConfig.tetherScalePx,
+        buttonJellyConfig.dragGain,
       );
       posSpringRef.current.start({
         ...target,

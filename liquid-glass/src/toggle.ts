@@ -8,7 +8,7 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /** Distinct follow feel for the toggle knob — buttonJellyConfig stays untouched (JELLY_EFFECT.md). */
-export const toggleJellyConfig = createJellyConfig({ drag: 6, tension: 700, friction: 40 });
+export const toggleJellyConfig = createJellyConfig({ tension: 700, friction: 40 });
 
 /** Knob travel from track center to either resting end, css px. */
 export function travelPx(G: ToggleGeometry): number {
@@ -73,8 +73,9 @@ export function glassContentScale(expand: number, G: ToggleGeometry): number {
 /** Keep the projected track open through mid-travel while preserving endpoint concentricity. */
 export function glassContentScaleX(expand: number, t: number, G: ToggleGeometry): number {
   const clampedT = Math.max(0, Math.min(1, t));
-  const endpointWeight = Math.abs(2 * clampedT - 1);
-  return lerp(1, glassContentScale(expand, G), endpointWeight);
+  const midTravel = 1 - Math.abs(2 * clampedT - 1);
+  const easedMidTravel = midTravel * midTravel * (3 - 2 * midTravel);
+  return lerp(glassContentScale(expand, G), 1, easedMidTravel);
 }
 
 /** Fixed bar/ring centers, css px offset from track center — sit in the region the knob uncovers. */

@@ -6,7 +6,6 @@ import {
   homeCanvas,
   iconColorForRgb,
   rubberBand,
-  rubberBand2D,
   tetherTarget,
   toggleHome,
 } from './interaction';
@@ -26,26 +25,36 @@ const home = buttonHome(800, 600, 2);
 const untouched = tetherTarget(0, 0, 800, 600, 2);
 const pulled = tetherTarget(200, 0, 800, 600, 2);
 const pulledFar = tetherTarget(2000, 0, 800, 600, 2);
-const diagonal = rubberBand2D(30, 40, 36);
-const ellipse = ellipseFromPull(200, 80);
-const softer = createJellyConfig({ drag: 20, tension: 400, friction: 30 });
+const softer = createJellyConfig({ drag: 0.02, tension: 400, friction: 30 });
 
 if (untouched.x !== home.x || untouched.y !== home.y) throw new Error('press moved before drag');
 if (pulled.x <= home.x) throw new Error('tether did not move');
-// unbounded: keeps growing past the old cap...
 if (pulledFar.x <= pulled.x) throw new Error('tether hit a hard limit');
-// ...but sublinear: slope keeps decreasing
-if (rubberBand(400, 36) - rubberBand(200, 36) >= rubberBand(200, 36) - rubberBand(0, 36)) {
-  throw new Error('tether is not slowing down');
+if (Math.abs(pulledFar.x - home.x - (pulled.x - home.x) * 10) > 1e-9) {
+  throw new Error('tether is not linear');
 }
-if (Math.abs(Math.hypot(diagonal.x, diagonal.y) - 36 * Math.log1p(50 / 36)) > 1e-9) {
-  throw new Error('2D tether changed drag direction');
+const iphoneBase = 179;
+const iphoneFrontTravel = 2622 * buttonJellyConfig.dragGain;
+const iphonePull = iphoneFrontTravel * (1 - buttonJellyConfig.rearFollow);
+const iphoneEllipse = ellipseFromPull(iphoneBase, iphonePull);
+const iphoneCenterTravel = iphoneFrontTravel * (1 + buttonJellyConfig.rearFollow) / 2;
+if (
+  Math.abs(iphoneEllipse.height - 150) > 0.25 ||
+  Math.abs(iphoneEllipse.width - 206) > 0.25 ||
+  Math.abs(iphoneCenterTravel - 29.5) > 0.25
+) {
+  throw new Error('full-screen pull no longer matches the measured iPhone silhouette');
 }
-if (ellipse.width !== 280 || ellipse.height !== 200) throw new Error('pull is not an oval');
-if (buttonJellyConfig.tetherScalePx !== 8 || buttonJellyConfig.followSpring.tension !== 720) {
+if (
+  buttonJellyConfig.dragGain !== 0.01635 ||
+  buttonJellyConfig.rearFollow !== 0.375 ||
+  buttonJellyConfig.crossCompression !== 1.08 ||
+  buttonJellyConfig.followSpring.tension !== 1200 ||
+  buttonJellyConfig.followSpring.friction !== 70
+) {
   throw new Error('Button jelly preset changed');
 }
-if (softer.tetherScalePx !== 20 || softer.followSpring.friction !== 30) {
+if (softer.dragGain !== 0.02 || softer.followSpring.friction !== 30) {
   throw new Error('custom jelly strength was ignored');
 }
 if (iconColorForRgb(0, 0, 0) !== 'rgb(255 255 255)') throw new Error('dark contrast failed');
@@ -102,4 +111,13 @@ if (
   glassContentScaleX(0.5, 0.5, toggleDefaults) !== 1
 ) {
   throw new Error('glass content X scale did not stay open through mid-travel');
+}
+const nearStartContentScale = glassContentScaleX(1, 0.05, toggleDefaults);
+const nearEndContentScale = glassContentScaleX(1, 0.95, toggleDefaults);
+if (
+  Math.abs(nearStartContentScale - 0.77644) > 1e-9 ||
+  Math.abs(nearEndContentScale - 0.77644) > 1e-9 ||
+  nearStartContentScale !== nearEndContentScale
+) {
+  throw new Error('glass content X scale did not ease symmetrically at endpoints');
 }

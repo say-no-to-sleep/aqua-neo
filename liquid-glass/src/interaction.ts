@@ -7,16 +7,18 @@ export type JellyStrength = {
 };
 
 export function createJellyConfig({
-  drag = 8,
-  tension = 720,
-  friction = 46,
+  drag = 0.01635,
+  tension = 1200,
+  friction = 70,
 }: Partial<JellyStrength> = {}) {
   return {
     pressScale: 1.1,
-    /** CSS-px scale of the tether curve — travel is unbounded but slows past this. */
-    tetherScalePx: drag,
+    /** Leading-edge travel per css px of pointer travel. */
+    dragGain: drag,
     /** Rear mass follows this fraction of the front's displacement (1 = rigid, 0 = frozen back). */
-    rearFollow: 0.2,
+    rearFollow: 0.375,
+    /** Perpendicular compression per css px of elongation. */
+    crossCompression: 1.08,
     pressSpring: { mass: 1, tension: 380, friction: 22 },
     releaseSpring: { mass: 1, tension: 220, friction: 14 },
     /** Follow finger while held — snappy but not rigid. */
@@ -50,18 +52,6 @@ export function rubberBand(offset: number, scale: number): number {
   return scale * Math.log1p(offset / scale);
 }
 
-export function rubberBand2D(
-  dx: number,
-  dy: number,
-  limit: number,
-): { x: number; y: number } {
-  const dist = Math.hypot(dx, dy);
-  if (dist < 1e-6) return { x: 0, y: 0 };
-  const scaled = rubberBand(dist, limit);
-  const s = scaled / dist;
-  return { x: dx * s, y: dy * s };
-}
-
 export function homeCanvas(widthCss: number, heightCss: number, dpr: number) {
   return {
     x: (widthCss * dpr) / 2,
@@ -82,7 +72,11 @@ export function toggleHome(widthCss: number, heightCss: number, dpr: number) {
 }
 
 export function ellipseFromPull(baseSize: number, pull: number) {
-  return { width: baseSize + Math.max(0, pull), height: baseSize };
+  const stretch = Math.max(0, pull);
+  return {
+    width: baseSize + stretch,
+    height: Math.max(1, baseSize - stretch * buttonJellyConfig.crossCompression),
+  };
 }
 
 export function iconColorForRgb(red: number, green: number, blue: number) {
@@ -91,7 +85,7 @@ export function iconColorForRgb(red: number, green: number, blue: number) {
 }
 
 /**
- * Target mass position: home + rubber-banded drag from pointer-down.
+ * Target mass position: home + Apple's measured linear drag response.
  * Returns canvas GL pixels.
  */
 export function tetherTarget(
@@ -100,13 +94,8 @@ export function tetherTarget(
   widthCss: number,
   heightCss: number,
   dpr: number,
-  tetherScalePx: number = buttonJellyConfig.tetherScalePx,
+  dragGain: number = buttonJellyConfig.dragGain,
 ): { x: number; y: number } {
   const home = buttonHome(widthCss, heightCss, dpr);
-  const band = rubberBand2D(
-    dragX * dpr,
-    -dragY * dpr,
-    tetherScalePx * dpr,
-  );
-  return { x: home.x + band.x, y: home.y + band.y };
+  return { x: home.x + dragX * dpr * dragGain, y: home.y - dragY * dpr * dragGain };
 }
