@@ -37,7 +37,8 @@ export function hitTestCircle(
   radiusCss: number = defaults.shapeWidth / 2,
 ): boolean {
   const cx = canvasWidthCss / 2;
-  const cy = canvasHeightCss / 2;
+  // Button sits buttonLift above canvas center — "up" is a smaller client Y.
+  const cy = canvasHeightCss / 2 - defaults.layout.buttonLift;
   const dx = clientX - cx;
   const dy = clientY - cy;
   return dx * dx + dy * dy <= radiusCss * radiusCss;
@@ -68,6 +69,18 @@ export function homeCanvas(widthCss: number, heightCss: number, dpr: number) {
   };
 }
 
+/** Button's resting center, canvas GL px (y-up) — canvas center lifted up by buttonLift. */
+export function buttonHome(widthCss: number, heightCss: number, dpr: number) {
+  const c = homeCanvas(widthCss, heightCss, dpr);
+  return { x: c.x, y: c.y + defaults.layout.buttonLift * dpr };
+}
+
+/** Toggle's resting center, canvas GL px (y-up) — canvas center dropped down by toggleDrop. */
+export function toggleHome(widthCss: number, heightCss: number, dpr: number) {
+  const c = homeCanvas(widthCss, heightCss, dpr);
+  return { x: c.x, y: c.y - defaults.layout.toggleDrop * dpr };
+}
+
 export function ellipseFromPull(baseSize: number, pull: number) {
   return { width: baseSize + Math.max(0, pull), height: baseSize };
 }
@@ -89,7 +102,7 @@ export function tetherTarget(
   dpr: number,
   tetherScalePx: number = buttonJellyConfig.tetherScalePx,
 ): { x: number; y: number } {
-  const home = homeCanvas(widthCss, heightCss, dpr);
+  const home = buttonHome(widthCss, heightCss, dpr);
   const band = rubberBand2D(
     dragX * dpr,
     -dragY * dpr,

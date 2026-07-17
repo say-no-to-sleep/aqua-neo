@@ -41,3 +41,16 @@ canvas {
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
+
+/* Transparent a11y overlay over the canvas-drawn toggle — canvas keeps all pointer handling. */
+.toggle-hit {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  pointer-events: none;
+  cursor: pointer;
+}

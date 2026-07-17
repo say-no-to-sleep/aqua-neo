@@ -26,6 +26,22 @@ uniform float u_bgTextureRatio;
 uniform int u_bgTextureReady;
 uniform int u_showShape1;
 
+// Toggle: track + indicators + knob shadow. All u_tog* are pushed as global uniforms.
+uniform vec2 u_togCenter;
+uniform vec2 u_togTrackSize;
+uniform float u_togTrackMix;
+uniform vec3 u_togOnColor;
+uniform vec3 u_togOffColor;
+uniform vec2 u_togBarCenter;
+uniform float u_togBarAlpha;
+uniform vec2 u_togRingCenter;
+uniform vec4 u_togRingColor;
+uniform float u_togRingAlpha;
+uniform vec2 u_togKnobCenter;
+uniform vec2 u_togKnobSize;
+uniform float u_togKnobStretch;
+uniform float u_togKnobShadowFactor;
+
 float chessboard(vec2 uv, float size, int mode) {
   float yBars = step(size * 2.0, mod(uv.y * 2.0, size * 4.0));
   float xBars = step(size * 2.0, mod(uv.x * 2.0, size * 4.0));
@@ -103,6 +119,28 @@ void main() {
   // float chessboardBg = 1.0 - chessboard(gl_FragCoord.xy / u_dpr, 10.0) / 4.0;
   // float halfColorBg = halfColor(gl_FragCoord.xy / u_resolution);
 
+  // Toggle track (green/gray crossfade) + on/off indicators, drawn into the background.
+  float togTrackDist = roundedRectSDF(
+    gl_FragCoord.xy,
+    u_togCenter,
+    u_togTrackSize.x,
+    u_togTrackSize.y,
+    u_togTrackSize.y * 0.5,
+    2.0
+  );
+  float togTrackFill = 1.0 - smoothstep(-u_dpr, u_dpr, togTrackDist);
+  vec3 togTrackColor = mix(u_togOffColor, u_togOnColor, u_togTrackMix);
+  bgColor = mix(bgColor, togTrackColor, togTrackFill);
+
+  // "|" bar (exposed when ON) and "○" ring (exposed when OFF) — alpha is fully JS-driven.
+  float togBarDist = roundedRectSDF(gl_FragCoord.xy, u_togBarCenter, 5.0, 30.0, 2.5, 2.0);
+  float togBarFill = (1.0 - smoothstep(-u_dpr, u_dpr, togBarDist)) * u_togBarAlpha;
+  bgColor = mix(bgColor, vec3(1.0), togBarFill);
+
+  float togRingDist = abs(length(gl_FragCoord.xy - u_togRingCenter) - 15.0 * u_dpr) - 2.5 * u_dpr;
+  float togRingFill = (1.0 - smoothstep(-u_dpr, u_dpr, togRingDist)) * u_togRingAlpha;
+  bgColor = mix(bgColor, u_togRingColor.rgb, togRingFill);
+
   // draw shadow
   // center of shape 1
   vec2 p1 =
@@ -119,6 +157,31 @@ void main() {
   float outside = smoothstep(-1.0 / u_resolution1x.y, 1.0 / u_resolution1x.y, originalShape);
   float shadowDistance = max(shadowShape, 0.0) * u_resolution1x.y;
   float shadow = exp(-shadowDistance / u_shadowExpand) * 0.6 * u_shadowFactor * outside;
+
+  // Knob shadow — same exp-falloff/offset recipe, using the knob's own pill SDF (physical px).
+  vec2 knobShadowCenter = u_togKnobCenter - vec2(u_shadowPosition.x * u_dpr, u_shadowPosition.y * u_dpr);
+  float knobShadowShape = roundedRectSDF(
+    gl_FragCoord.xy,
+    knobShadowCenter,
+    u_togKnobSize.x * u_togKnobStretch,
+    u_togKnobSize.y,
+    u_togKnobSize.y * 0.5,
+    2.0
+  );
+  float knobOriginalShape = roundedRectSDF(
+    gl_FragCoord.xy,
+    u_togKnobCenter,
+    u_togKnobSize.x * u_togKnobStretch,
+    u_togKnobSize.y,
+    u_togKnobSize.y * 0.5,
+    2.0
+  );
+  float knobOutside = smoothstep(-u_dpr, u_dpr, knobOriginalShape);
+  float knobShadowDistance = max(knobShadowShape, 0.0) / u_dpr;
+  float knobShadow =
+    exp(-knobShadowDistance / u_shadowExpand) * 0.6 * u_togKnobShadowFactor * knobOutside;
+
+  shadow = max(shadow, knobShadow);
 
   fragColor = vec4(mix(bgColor, vec3(0.04), clamp(shadow, 0.0, 0.22)), 1.0);
 }
